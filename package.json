@@ -1,0 +1,40 @@
+{
+  "name": "dc-dapp",
+  "version": "0.1.0",
+  "description": "Command line interface for DC protocol",
+  "author": "Dao Casino",
+  "preferGlobal": true,
+  "license": "ISC",
+  "homepage": "https://github.com/DaoCasino",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DaoCasino/dc-cli"
+  },
+  "bugs": {
+    "url": "https://github.com/DaoCasino/dc-cli/issues",
+    "email": "ilya.dev@dao.casino"
+  },
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "bin": {
+    "dcdapp": "bin/dcdapp.js"
+  },
+  "keywards": [
+    "dc",
+    "cli",
+    "dclib",
+    "dcdapp",
+    "dao-casino"
+  ],
+  "scripts": {
+    "test": "echo 'test'"
+  },
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "commander": "^2.16.0",
+    "inquirer": "^6.0.0",
+    "truffle": "^4.1.13"
+  },
+  "devDependencies": {}
+}
