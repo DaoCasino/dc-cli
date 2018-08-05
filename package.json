@@ -1,5 +1,5 @@
 {
-  "name": "dc-dapp",
+  "name": "dc-cli",
   "version": "0.1.0",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
@@ -18,7 +18,7 @@
     "node": ">=6.0.0"
   },
   "bin": {
-    "dcdapp": "bin/dcdapp.js"
+    "dc-cli": "bin/cli.js"
   },
   "keywards": [
     "dc",
