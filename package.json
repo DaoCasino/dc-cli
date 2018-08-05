@@ -28,6 +28,7 @@
     "dao-casino"
   ],
   "scripts": {
+    "preinstall": "npm i -g truffle",
     "test": "echo 'test'"
   },
   "dependencies": {
