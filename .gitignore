@@ -1,1 +1,10 @@
+# folders
 node_modules
+my-dapp
+
+# rc
+.npmrc
+
+# lock
+package-lock.json
+yarn.lock
