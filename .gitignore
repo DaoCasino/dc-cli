@@ -8,3 +8,6 @@ my-dapp
 # lock
 package-lock.json
 yarn.lock
+
+# Misc
+.DS_Store

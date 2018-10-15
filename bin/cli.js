@@ -1,20 +1,20 @@
 #!/usr/bin/env node
-const stop    = require('../lib/stop')
-const list    = require('../lib/list')
-const logs    = require('../lib/logs')
-const start   = require('../lib/start')
-const build   = require('../lib/build')
-const Utils   = require('../lib/Utils')
-const chalk   = require('chalk')
-const dcdapp  = require('../lib/index')
-const create  = require('../lib/create')
-const deploy  = require('../lib/deploy')
+const stop = require('../lib/stop')
+const list = require('../lib/list')
+const logs = require('../lib/logs')
+const start = require('../lib/start')
+const build = require('../lib/build')
+const Utils = require('../lib/Utils')
+const chalk = require('chalk')
+const create = require('../lib/create')
+const deploy = require('../lib/deploy')
 const _config = require('../lib/config')
 const publish = require('../lib/publish')
 const program = require('commander')
+const startCLI = require('../lib/index')
 
 const commands = {}
-_config.commands.forEach(c=>{
+_config.commands.forEach(c => {
   commands[c.name] = c
 })
 
@@ -45,8 +45,7 @@ program
 program
   .command('list')
   .description(`${chalk.green(commands['list'].description.trim())} `)
-  .usage(`${chalk.red('[options]')}`)
-  .action((val, cmd) => list())
+  .action(() => list())
 
 /**
  * Command for create project with template
@@ -224,10 +223,5 @@ program
     }
   })
 
-/**
- * Defoult function CLI
- *
- * Example:
- * dc-cli
- */
-dcdapp()
+program.parse(process.argv)
+if (program.args.length === 0) startCLI()
