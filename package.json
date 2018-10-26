@@ -4,7 +4,7 @@
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
   "preferGlobal": true,
-  "license": "ISC",
+  "license": "GPL-3.0",
   "homepage": "developers.dao.casino",
   "repository": {
     "type": "git",
