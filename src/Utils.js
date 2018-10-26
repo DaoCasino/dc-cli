@@ -9,6 +9,7 @@ const npmCheck = require('update-check')
 
 const sudo = () => (typeof process.env.SUDO_UID !== 'undefined') ? 'sudo -E' : ''
 const checkENV = () => !(!fs.existsSync(_config.projectsENV))
+const UUIDGenerate = () => UUID.machineIdSync({ original: true })
 
 function startCLICommand (command, target = process.cwd()) {
   return new Promise((resolve, reject) => {
@@ -110,8 +111,11 @@ module.exports = {
   sudo,
   checkENV,
   exitProgram,
+  UUIDGenerate,
   startCLICommand,
   addExitListener,
+  startPM2Service,
+  deletePM2Service,
   checkGlobalDepend,
   checkLatestVersion
 }
