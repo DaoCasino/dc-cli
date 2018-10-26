@@ -25,12 +25,12 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
-if ! [ -x "$(command -v truffle)" ]; then
-  echo ''
-  echo 'ERROR: truffle is not installed'>&2
-  echo '================================='
-  echo '|  please use npm i -g truffle  |'
-  echo '================================='
-  echo ''
-  exit 1
-fi
+# if ! [ -x "$(command -v truffle)" ]; then
+#   echo ''
+#   echo 'ERROR: truffle is not installed'>&2
+#   echo '================================='
+#   echo '|  please use npm i -g truffle  |'
+#   echo '================================='
+#   echo ''
+#   exit 1
+# fi

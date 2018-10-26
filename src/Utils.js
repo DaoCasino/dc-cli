@@ -1,39 +1,31 @@
-const fs       = require('fs')
-const chalk    = require('chalk')
-const spawn    = require('child_process').spawn
-const _config  = require('./config')
-const inquirer = require('inquirer')
-
-const prompt = inquirer.createPromptModule()
+const fs = require('fs')
+const chalk = require('chalk')
+const { spawn } = require('child_process')
+const _config = require('./config/config')
+const npmCheck = require('update-check')
 
 const sudo = () => (typeof process.env.SUDO_UID !== 'undefined') ? 'sudo -E' : ''
 const checkENV = () => !(!fs.existsSync(_config.projectsENV))
 
 function startCLICommand (command, target = process.cwd()) {
   return new Promise((resolve, reject) => {
-    const log = []
-    const startChildProcess = spawn(command, {shell: true, cwd: target})
-
-    startChildProcess.stdout.on('data', data => log.push(`${data}`))
-    startChildProcess.stderr.on('data', errorData => log.push(`${errorData}`))
+    const startChildProcess = spawn(command, {shell: true, stdio: 'inherit', cwd: target})
 
     startChildProcess.on('error', error => reject(error))
     startChildProcess.on('exit', code => {
-      const parseLog = log.join('\n');
-
       (code !== 0)
-        ? reject(new Error(parseLog))
-        : resolve({ status: 'ok', logMessage: parseLog })
+        ? reject(new Error(`child procces ${command} exit with code ${code}`))
+        : resolve({ status: 'success' })
     })
   })
 }
 
 async function checkLatestVersion () {
   try {
-    const latestVersion = (await startCLICommand('npm view dc-cli@latest version')).logMessage
+    const latestVersion = (await npmCheck(require(_config.packageJSON))).latest
     const targetVersion = require(_config.packageJSON).version
 
-    if (targetVersion < latestVersion.trim()) {
+    if (targetVersion < latestVersion) {
       console.log('')
       console.log(`${chalk.bgRgb(255, 194, 102).gray('  UPDATE AVALABLE  ')}`)
       console.log(`
@@ -63,37 +55,37 @@ function checkGlobalDepend () {
     .on('exit', code => {
       if (code !== 0) {
         console.error(`${chalk.bgRed.black(' Error:TypeDependsCHECK ')} ${chalk.red('docker or docker-compose not installed please install of doc [https://docs.docker.com/toolbox/]')}`)
-        process.exit()
+        exitProgram(process.pid)
       }
     })
 }
 
-function checkOpts () {
-  for (let argv of _config.options) {
-    if (process.argv.includes(argv)) {
-      return true
-    }
+function exitProgram (pid, error, exitCode) {
+  if (error) {
+    console.error(error)
   }
 
-  return false
+  process.exitCode = exitCode || 1
+  process.kill(pid, 'SIGTERM')
 }
 
-function checkTemplate (template) {
-  for (let tmp of _config.templates) {
-    if (tmp.name.toLowerCase() === template.toLowerCase()) {
-      return true
-    }
-  }
-
-  return false
+function addExitListener (callback = false) {
+  ['SIGINT', 'SIGKILL', 'exit']
+    .forEach(signal => {
+      process.on(signal, () => {
+        (callback) && callback()
+        console.log('!Procces out')
+        exitProgram(process.ppid, false, 0)
+      })
+    })
 }
 
 module.exports = {
   sudo,
   checkENV,
-  checkOpts,
-  checkTemplate,
+  exitProgram,
   startCLICommand,
+  addExitListener,
   checkGlobalDepend,
   checkLatestVersion
 }

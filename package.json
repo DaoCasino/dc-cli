@@ -1,6 +1,6 @@
 {
   "name": "dc-cli",
-  "version": "0.1.16",
+  "version": "0.1.14",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
   "preferGlobal": true,
@@ -18,7 +18,7 @@
     "node": ">=6.0.0"
   },
   "bin": {
-    "dc-cli": "bin/cli.js"
+    "dc-cli": "bin/CLI"
   },
   "keywards": [
     "dc",
@@ -42,10 +42,12 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
+    "download": "^7.1.0",
     "inquirer": "^6.0.0",
     "ora": "^3.0.0",
     "request": "^2.87.0",
-    "request-promise": "^4.2.2"
+    "request-promise": "^4.2.2",
+    "update-check": "^1.5.2"
   },
   "devDependencies": {
     "eslint": "^4.16.0",
