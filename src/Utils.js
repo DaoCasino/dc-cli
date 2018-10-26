@@ -1,4 +1,7 @@
 const fs = require('fs')
+const pm2 = require('pm2')
+const ncp = require('ncp').ncp
+const UUID = require('node-machine-id')
 const chalk = require('chalk')
 const { spawn } = require('child_process')
 const _config = require('./config/config')
@@ -78,6 +81,29 @@ function addExitListener (callback = false) {
         exitProgram(process.ppid, false, 0)
       })
     })
+}
+
+function startPM2Service (config) {
+  return new Promise((resolve, reject) => {
+    pm2.connect(err => {
+      (err) && reject(err)
+
+      pm2.start(config, (err, apps) => {
+        (err) ? reject(err) : resolve(true)
+      })
+    })
+  })
+}
+
+function deletePM2Service (name) {
+  return new Promise((resolve, reject) => {
+    pm2.delete('bankroller', async err => {
+      (err) && reject(new Error(err))
+
+      await pm2.disconnect()
+      resolve(name)
+    })
+  })
 }
 
 module.exports = {

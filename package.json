@@ -44,9 +44,9 @@
     "commander": "^2.16.0",
     "download": "^7.1.0",
     "inquirer": "^6.0.0",
-    "ora": "^3.0.0",
-    "request": "^2.87.0",
-    "request-promise": "^4.2.2",
+    "ncp": "^2.0.0",
+    "node-machine-id": "^1.1.10",
+    "pm2": "^3.2.2",
     "update-check": "^1.5.2"
   },
   "devDependencies": {
