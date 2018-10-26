@@ -58,6 +58,7 @@ program
   .command('stop')
   .description(`${chalk.green(commands['stop'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
+  .action(cmd => CLI.DApp.stop(cmd))
 
 program
   .command('logs')

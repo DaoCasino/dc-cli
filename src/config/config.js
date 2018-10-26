@@ -32,5 +32,6 @@ module.exports = {
   ASCIColor      : /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
   packageJSON    : path.join(__dirname, '../../package.json'),
   projectsENV    : path.join(process.cwd(), './node_modules/dc-webapi'),
+  startOptions   : path.join(__dirname, './startOptions.json'),
   packageEnvJSON : path.join(fs.realpathSync(process.cwd()), '_env/package.json')
 }
