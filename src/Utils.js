@@ -1,6 +1,7 @@
 const fs = require('fs')
 const pm2 = require('pm2')
 const ncp = require('ncp').ncp
+const path = require('path')
 const UUID = require('node-machine-id')
 const chalk = require('chalk')
 const { spawn } = require('child_process')
@@ -107,6 +108,16 @@ function deletePM2Service (name) {
   })
 }
 
+function recursiveCopyDirectory (target_path) {
+  return new Promise((resolve, reject) => {
+    ncp(
+      path.join(__dirname, '../_env/protocol'),
+      target_path,
+      err => (err) ? reject(err) : resolve(target_path)
+    )
+  })
+}
+
 module.exports = {
   sudo,
   checkENV,
@@ -117,5 +128,6 @@ module.exports = {
   startPM2Service,
   deletePM2Service,
   checkGlobalDepend,
-  checkLatestVersion
+  checkLatestVersion,
+  recursiveCopyDirectory
 }
