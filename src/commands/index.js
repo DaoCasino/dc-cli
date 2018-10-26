@@ -50,6 +50,9 @@ program
   .command('start')
   .description(`${chalk.green(commands['start'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
+  .option('-d, --docker', 'Start env in docker containers')
+  .option('-n, --network <network>', 'Set blockchain network for start env')
+  .action((cmd) => CLI.DApp.start(cmd))
 
 program
   .command('stop')
@@ -75,10 +78,10 @@ program
   .option('-c, --no-contract', 'Skip deploy contract')
   .option('-d, --no-dapp', 'Skip deploy DApp')
 
-// program
-//   .command('publish')
-//   .description(`${chalk.green(commands['publish'].description.trim())} `)
-//   .usage(`${chalk.red('[options]')}`)
+program
+  .command('publish')
+  .description(`${chalk.green(commands['publish'].description.trim())} `)
+  .usage(`${chalk.red('[options]')}`)
 
 /** Parse command line arguments */
 program.parse(process.argv)

@@ -108,12 +108,12 @@ function deletePM2Service (name) {
   })
 }
 
-function recursiveCopyDirectory (target_path) {
+function recursiveCopyDirectory (targetPath) {
   return new Promise((resolve, reject) => {
     ncp(
       path.join(__dirname, '../_env/protocol'),
-      target_path,
-      err => (err) ? reject(err) : resolve(target_path)
+      targetPath,
+      err => (err) ? reject(err) : resolve(targetPath)
     )
   })
 }
