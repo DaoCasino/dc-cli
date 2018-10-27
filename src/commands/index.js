@@ -52,7 +52,7 @@ program
   .usage(`${chalk.red('[options]')}`)
   .option('-d, --docker', 'Start env in docker containers')
   .option('-n, --network <network>', 'Set blockchain network for start env')
-  .action((cmd) => CLI.DApp.start(cmd))
+  .action(command => CLI.DApp.start(command))
 
 program
   .command('bankup')
@@ -61,17 +61,21 @@ program
   .option('-b, --background', 'Start bankroller in background (pm2)')
   .option('-p, --privatekey <privatekey>', 'Input private key for start bankroller in needed network')
   .option('-n, --network <network>', 'Start bankroller in target blockchain network')
+  .action(command => CLI.DApp.startBankrollerWithNetwork(command))
 
 program
   .command('stop')
   .description(`${chalk.green(commands['stop'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
-  .action(cmd => CLI.DApp.stop(cmd))
+  .action(command => CLI.DApp.stop(command))
 
 program
   .command('logs')
   .description(`${chalk.green(commands['logs'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
+  .option('-b, --bankroller', 'View bankroller logs')
+  .option('-t, --testrpc', 'View testrpc logs')
+  .action(command => CLI.DApp.viewLogs(command))
 
 program
   .command('migrate')

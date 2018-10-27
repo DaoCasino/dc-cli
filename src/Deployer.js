@@ -1,5 +1,6 @@
 const path = require('path')
 const Utils = require('./Utils')
+const { IpfsTransportProvider } = require('dc-messaging')
 module.exports = class Deployer {
   constructor (params) {
     this._params = params
@@ -26,8 +27,8 @@ module.exports = class Deployer {
     }
   }
 
-  async deployGameToBankroller () {
-
+  async uploadGameToBankroller () {
+    const provider = await IpfsTransportProvider.create()
   }
 
   async deployGameToIPFS () {

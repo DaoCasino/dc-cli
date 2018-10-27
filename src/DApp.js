@@ -53,10 +53,27 @@ module.exports = class DApp extends Deployer {
     console.log('Enviroment stoped')
   }
 
-  viewMonitor (target) {
-  }
+  async viewLogs (options) {
+    let targetLog = 'bankroller'
+    switch (true) {
+      case options.testrpc:
+        targetLog = 'testrpc'
+        break
+      case options.bankroller:
+        targetLog = 'bankroller'
+        break
+      default:
+        targetLog = (await this._params.prompt({
+          type: 'list',
+          name: 'targetLog',
+          message: 'Please select target to start logs',
+          choices: ['testrpc', 'bankroller']
+        })).targetLog
+    }
 
-  uploadGameDataToBankrooler () {
+    (!startOptionsConfig.useDocker)
+      ? Utils.startCLICommand(`npm run logs:pm2:${targetLog}`)
+      : Utils.startCLICommand(`npm run logs:docker:${targetLog}`)
   }
 
   async startBankrollerWithNetwork (options) {
@@ -96,7 +113,7 @@ module.exports = class DApp extends Deployer {
       if (startInBackground) {
         await Utils.startPM2Service({
           cwd: path.join(__dirname, '../'),
-          name: `bankroller_core:${blockchainNetwork}`,
+          name: 'bankroller_core',
           exec_mode: 'fork',
           script: 'npm',
           args: `run start:bankroller_core:${blockchainNetwork}`
@@ -125,7 +142,7 @@ module.exports = class DApp extends Deployer {
     try {
       await Utils.startPM2Service({
         cwd: path.join(__dirname, '../'),
-        name: 'dc-protocol',
+        name: 'dc_protocol',
         exec_mode: 'fork',
         script: 'npm',
         args: 'run start:dc_protocol:testrpc'
@@ -151,6 +168,6 @@ module.exports = class DApp extends Deployer {
   _startDockerLocalENV (startOptions = startOptionsConfig) {
     process.env.TESTRPC_PORT = 8546
     process.env.ACCOUNT_PRIVATE_KEY = _config.bankrollerLocalPrivateKey
-    console.log('docker')
+    console.log('coming soon...')
   }
 }

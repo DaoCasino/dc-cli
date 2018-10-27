@@ -46,7 +46,10 @@
     "migrate:ropsten": "dc-protocol migrate --network ropsten",
     "migrate:rinkeby": "dc-protocol migrate --network rinkeby",
 
-    "logs:pm2": "pm2 monit"
+    "logs:pm2:testrpc": "pm2 logs dc_protocol",
+    "logs:pm2:bankroller": "pm2 logs bankroller_core",
+    "logs:docker:testrpc": "",
+    "logs:docker:bankroller": ""
   },
   "dependencies": {
     "bankroller-core": "^0.1.1",
@@ -58,7 +61,6 @@
     "dc-protocol": "^0.1.2",
     "node-machine-id": "^1.1.10",
     "pm2": "^3.0.4",
-    "shelljs": "^0.8.2",
     "truffle": "^5.0.0-beta.0",
     "truffle-hdwallet-provider": "^1.0.0-web3one.0",
     "update-check": "^1.5.2"
