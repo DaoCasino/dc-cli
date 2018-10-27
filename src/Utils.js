@@ -99,7 +99,7 @@ function startPM2Service (config) {
 
 function deletePM2Service (name) {
   return new Promise((resolve, reject) => {
-    pm2.delete('bankroller', async err => {
+    pm2.delete(name, async err => {
       (err) && reject(new Error(err))
 
       await pm2.disconnect()

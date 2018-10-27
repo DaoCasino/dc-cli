@@ -8,8 +8,9 @@ module.exports = {
     { name: 'start', description: '  Up env for development dapp' },
     { name: 'stop', description: '   Down env for development dapp' },
     { name: 'logs', description: '   Output logs SDK with network' },
-    { name: 'build', description: '  Build DApp' },
+    { name: 'bankup', description: ' Start bankroller in target network' },
     { name: 'deploy', description: ' Deploing dapp' },
+    { name: 'migrate', description: 'migrate contract to the network' },
     { name: 'publish', description: 'Send game to Dao.Casino marketplace' }
   ],
 
@@ -28,10 +29,13 @@ module.exports = {
     }
   ],
 
-  isWin          : /^win/.test(process.platform),
-  ASCIColor      : /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
-  packageJSON    : path.join(__dirname, '../../package.json'),
-  projectsENV    : path.join(process.cwd(), './node_modules/dc-webapi'),
-  startOptions   : path.join(__dirname, './startOptions.json'),
-  packageEnvJSON : path.join(fs.realpathSync(process.cwd()), '_env/package.json')
+  bankrollerLocalPrivateKey: '0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1',
+
+  isWin           : /^win/.test(process.platform),
+  ASCIColor       : /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+  packageJSON     : path.join(__dirname, '../../package.json'),
+  projectsENV     : path.join(process.cwd(), './node_modules/dc-webapi'),
+  startOptions    : path.join(__dirname, './startOptions.json'),
+  packageEnvJSON  : path.join(fs.realpathSync(process.cwd()), '_env/package.json'),
+  defaultMnemonic : 'glass method front super auto hole know grace select prevent custom fancy'
 }

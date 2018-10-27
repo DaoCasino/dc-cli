@@ -55,6 +55,14 @@ program
   .action((cmd) => CLI.DApp.start(cmd))
 
 program
+  .command('bankup')
+  .description(`${chalk.green(commands['bankup'].description.trim())} `)
+  .usage(`${chalk.red('[options]')}`)
+  .option('-b, --background', 'Start bankroller in background (pm2)')
+  .option('-p, --privatekey <privatekey>', 'Input private key for start bankroller in needed network')
+  .option('-n, --network <network>', 'Start bankroller in target blockchain network')
+
+program
   .command('stop')
   .description(`${chalk.green(commands['stop'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
@@ -66,9 +74,10 @@ program
   .usage(`${chalk.red('[options]')}`)
 
 program
-  .command('build')
-  .description(`${chalk.green(commands['build'].description.trim())} `)
+  .command('migrate')
+  .description(`${chalk.green(commands['migrate'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
+  .option('-n, --network <network>', 'Blockchain network for migrate')
 
 program
   .command('deploy')

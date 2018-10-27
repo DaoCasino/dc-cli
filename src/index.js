@@ -15,14 +15,11 @@ module.exports = class CLIInstance {
     this._prompt = inquirer.createPromptModule()
     this._nodeStart = `node ${path.join(__dirname, '../bin/CLI')}`
 
-    const initInstanceParams = {
+    this.DApp = new DApp({
       prompt: this._prompt,
       config: this._config,
       nodeStart: this._nodeStart
-    }
-
-    this.deployer = new Deployer(initInstanceParams)
-    this.DApp = new DApp(initInstanceParams)
+    })
   }
 
   async viewMenu () {
