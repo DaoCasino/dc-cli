@@ -42,6 +42,7 @@
     "start:bankroller_core:rinkeby": "bankroller-core start ACCOUNT_PRIVATE_KEY -n", 
     
     "start:dc_protocol:testrpc": "dc-protocol start",
+    
     "migrate:local": "dc-protocol migrate --network local",
     "migrate:ropsten": "dc-protocol migrate --network ropsten",
     "migrate:rinkeby": "dc-protocol migrate --network rinkeby",

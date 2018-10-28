@@ -19,36 +19,31 @@ module.exports = class DApp extends Deployer {
     }
 
     if (!startOptions.useDocker) {
-      startOptions.useDocker = (await this._params.prompt({
-        type: 'confirm',
-        name: 'useDocker',
-        message: 'Use docker containers for up enviroment',
-        default: false
-      })).useDocker
+      startOptions.useDocker = (await this._params.prompt(
+        this._params.getQuestion('useDocker')
+      )).useDocker
     }
 
-    if (
-      startOptionsConfig.useDocker !== startOptions.useDocker ||
-      startOptionsConfig.blockchainNetwork !== startOptions.blockchainNetwork
-    ) {
-      const openFile = fs.openSync(_config.startOptions, 'w')
-      fs.writeSync(openFile, JSON.stringify(startOptions, null, ' '), 0, 'utf-8')
-      fs.closeSync(openFile)
-    }
+    Utils.changeStartOptionsJSON(startOptions)
 
     try {
       (!startOptions.useDocker)
         ? await this._startLocalENV(startOptions)
         : await this._startDockerLocalENV(startOptions)
+
+      await Utils.startCLICommand(
+        'npm run start:local',
+        path.resolve(process.cwd())
+      )
     } catch (error) {
-      throw error
+      Utils.exitProgram(process.pid, error)
     }
   }
 
   async stop () {
     (!startOptionsConfig.useDocker)
       ? await Utils.deletePM2Service('all')
-      : await Utils.startCLICommand('docker-compose down')
+      : await Utils.startCLICommand('docker-compose down', path.join(__dirname, '../'))
 
     console.log('Enviroment stoped')
   }
@@ -63,12 +58,9 @@ module.exports = class DApp extends Deployer {
         targetLog = 'bankroller'
         break
       default:
-        targetLog = (await this._params.prompt({
-          type: 'list',
-          name: 'targetLog',
-          message: 'Please select target to start logs',
-          choices: ['testrpc', 'bankroller']
-        })).targetLog
+        targetLog = (await this._params.prompt(
+          this._params.getQuestion('targetLog')
+        )).targetLog
     }
 
     (!startOptionsConfig.useDocker)
@@ -83,29 +75,21 @@ module.exports = class DApp extends Deployer {
 
     try {
       if (!blockchainNetwork) {
-        blockchainNetwork = (await this._params.prompt({
-          type: 'list',
-          name: 'blockchainNetwork',
-          message: 'Please select network to start',
-          choices: ['local', 'ropsten', 'rinkeby']
-        })).blockchainNetwork
+        blockchainNetwork = (await this._params.prompt(
+          this._params.getQuestion('selectBlockchainNetwork')
+        )).blockchainNetwork
       }
 
       if (blockchainNetwork !== 'local') {
-        privateKeyToBankroller = (await this._params.prompt({
-          type: 'input',
-          name: 'privateKeyToBankroller',
-          message: 'Please input private key with eth and bet balance for bankroller'
-        })).privateKeyToBankroller
+        privateKeyToBankroller = (await this._params.prompt(
+          this._params.getQuestion('inputPrivateKey')
+        )).privateKeyToBankroller
       }
 
       if (!startInBackground) {
-        startInBackground = (await this._params.prompt({
-          type: 'confirm',
-          name: 'startInBackground',
-          message: 'Start bankroller in background',
-          default: false
-        })).startInBackground
+        startInBackground = (await this._params.prompt(
+          this._params.getQuestion('startInBackground')
+        )).startInBackground
       }
 
       process.env.ACCOUNT_PRIVATE_KEY = privateKeyToBankroller
@@ -122,7 +106,7 @@ module.exports = class DApp extends Deployer {
         console.log(`
 
         Bankroller start in background with pm2
-        for show logs bankroller please run ${chalk.green('dc-cli logs')}
+        for show logs bankroller please run ${chalk.green('dc-cli logs --bankroller')}
         or ${chalk.green(`pm2 logs bankroller_core:${blockchainNetwork}`)}
   
         `)
@@ -137,8 +121,6 @@ module.exports = class DApp extends Deployer {
   }
 
   async _startLocalENV (startOptions = startOptionsConfig) {
-    process.env.TESTRPC_PORT = 8545
-
     try {
       await Utils.startPM2Service({
         cwd: path.join(__dirname, '../'),
@@ -148,26 +130,36 @@ module.exports = class DApp extends Deployer {
         args: 'run start:dc_protocol:testrpc'
       })
 
-      const migrateToLocalNetwork = await this.migrateContract(
-        startOptions.blockchainNetwork
-      )
+      const migrateToLocalNetwork = await this.migrateContract({
+        network: startOptions.blockchainNetwork
+      })
 
-      if (migrateToLocalNetwork) {
+      if (migrateToLocalNetwork === 'success') {
         await this.startBankrollerWithNetwork({
           background: true,
           network: startOptions.blockchainNetwork
         })
-
-        Utils.exitProgram(process.pid, false, 0)
       }
     } catch (error) {
       Utils.exitProgram(process.pid, error, 1)
     }
   }
 
-  _startDockerLocalENV (startOptions = startOptionsConfig) {
-    process.env.TESTRPC_PORT = 8546
+  async _startDockerLocalENV (startOptions = startOptionsConfig) {
     process.env.ACCOUNT_PRIVATE_KEY = _config.bankrollerLocalPrivateKey
-    console.log('coming soon...')
+    try {
+      await Utils.startCLICommand('docker -v && docker-compose -v', process.cwd())
+      await Utils.startCLICommand(
+        'docker-compose up -d',
+        path.join(__dirname, '../')
+      )
+
+      await this.migrateContract({
+        network: startOptions.blockchainNetwork
+      })
+      console.log('coming soon...')
+    } catch (error) {
+      throw error
+    }
   }
 }

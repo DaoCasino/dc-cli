@@ -1,11 +1,36 @@
 const chalk = require('chalk')
+const Utils = require('../Utils')
 const program = require('commander')
 const _config = require('../config/config')
 const CLIInstance = require('../')
+const getQuestion = require('../config/questions')
 
 const commands = {}
-const CLI = new CLIInstance({config: _config})
-_config.commands.forEach(comand => { commands[comand.name] = comand })
+const CLI = new CLIInstance({ config: _config, getQuestion: getQuestion })
+_config.commands.forEach(command => { commands[command.name] = command })
+
+function run () {
+  /**
+   * If not enviroment and command needed env
+   * then output error log and exit
+   */
+  // if (
+  //   !Utils.checkENV() && process.argv[2] &&
+  //   _config.commands.find(command => (command.name === process.argv[2]) && command).env
+  // ) {
+  //   Utils.exitProgram(
+  //     process.pid,
+  //     chalk.red('\nError cannot created project please run dc-cli create and try again'),
+  //     0
+  //   )
+  // }
+
+  /** Parse command line arguments */
+  program.parse(process.argv)
+  program.cli = true
+  /** If arguments not exist then view main menu cli */
+  if (program.args.length === 0) CLI.viewMenu(program.args)
+}
 
 /**
  * Listen all commands
@@ -82,6 +107,15 @@ program
   .description(`${chalk.green(commands['migrate'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
   .option('-n, --network <network>', 'Blockchain network for migrate')
+  .option('-s, --stdmigrate', 'Migrate standart contract in dc-protocol')
+  .action(command => CLI.DApp.migrateContract(command))
+
+program
+  .command('upload')
+  .description(`${chalk.green(commands['upload'].description.trim())} `)
+  .usage(`${chalk.red('[options]')}`)
+  .option('-p, --path <pathToGame>', 'Path to upload dapp.logic.js and dapp.manifest.js')
+  .action(command => CLI.DApp.uploadGameToBankroller(command))
 
 program
   .command('deploy')
@@ -97,10 +131,4 @@ program
   .description(`${chalk.green(commands['publish'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
 
-/** Parse command line arguments */
-program.parse(process.argv)
-program.cli = true
-/** If arguments not exist then view main menu cli */
-if (program.args.length === 0) {
-  CLI.viewMenu(program.args)
-}
+run()

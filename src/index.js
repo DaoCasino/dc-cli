@@ -4,7 +4,6 @@ const DApp = require('./DApp')
 const chalk = require('chalk')
 const Utils = require('./Utils')
 const { spawn } = require('child_process')
-const Deployer  = require('./Deployer')
 const inquirer = require('inquirer')
 const download = require('download')
 
@@ -14,11 +13,13 @@ module.exports = class CLIInstance {
     this._config = this._params.config
     this._prompt = inquirer.createPromptModule()
     this._nodeStart = `node ${path.join(__dirname, '../bin/CLI')}`
+    this._getQuestion = this._params.getQuestion
 
     this.DApp = new DApp({
       prompt: this._prompt,
       config: this._config,
-      nodeStart: this._nodeStart
+      nodeStart: this._nodeStart,
+      getQuestion: this._getQuestion
     })
   }
 
@@ -28,27 +29,12 @@ module.exports = class CLIInstance {
      * if env not equal dc-gamesample then
      * all command besides create and list not used
      */
-    const commandSelected = (await this._prompt({
-      name: 'command',
-      message: `You did not enter a command or enter a nonexistent, What do you want to do?: `,
-      type: 'list',
-      pageSize: 10,
-      choices: this._config.commands
-        .filter(command => !((Utils.checkENV() && (command.name === 'list' || command.name === 'create'))))
-        .map(command => {
-          if (
-            !Utils.checkENV() &&
-            (command.name !== 'list' && command.name !== 'create')
-          ) {
-            command.name = `${chalk.rgb(128, 128, 128)(command.name)}`
-          }
-
-          return `${command.name} ${chalk.green(command.description)}`
-        })
-    })).command.split(' ')[0]
+    const commandSelected = (await this._prompt(
+      this._getQuestion('viewMenu')
+    )).command.split(' ')[0]
 
     /** Delete color string and start bin file with command */
-    const commandWithoutColor = commandSelected.replace(this._config.ASCIColor, '')
+    const commandWithoutColor = commandSelected.replace(this._config.ASCIIColor, '')
     spawn(`${Utils.sudo()} ${this._nodeStart} ${commandWithoutColor}`, {
       cwd: process.cwd(),
       stdio: 'inherit',
@@ -80,30 +66,22 @@ module.exports = class CLIInstance {
     await Utils.checkLatestVersion()
 
     if (typeof template === 'undefined') {
-      template = (await this._prompt({
-        type: 'list',
-        name: 'template',
-        message: 'Select the standart template?: ',
-        choices: ['DaoCasino/SDK']
-      })).template
+      template = (await this._prompt(
+        this._getQuestion('templateSelect')
+      )).template
     }
 
     if (typeof directory === 'undefined') {
-      directory = (await this._prompt({
-        type: 'input',
-        name: 'directory',
-        message: 'Input directory name to project?: '
-      })).directory
+      directory = (await this._prompt(
+        this._getQuestion('directoryInput')
+      )).directory
     }
 
     let useYarn = false
     if (!options.yarn) {
-      useYarn = (await this._prompt({
-        type: 'confirm',
-        name: 'useYarn',
-        message: 'Use yarn package manager',
-        default: true
-      })).useYarn
+      useYarn = (await this._prompt(
+        this._getQuestion('useYarn')
+      )).useYarn
     }
 
     try {

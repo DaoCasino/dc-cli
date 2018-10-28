@@ -7,14 +7,33 @@ const chalk = require('chalk')
 const { spawn } = require('child_process')
 const _config = require('./config/config')
 const npmCheck = require('update-check')
+const startOptionsConfig = require(_config.startOptions)
 
 const sudo = () => (typeof process.env.SUDO_UID !== 'undefined') ? 'sudo -E' : ''
 const checkENV = () => !(!fs.existsSync(_config.projectsENV))
 const UUIDGenerate = () => UUID.machineIdSync({ original: true })
 
-function startCLICommand (command, target = process.cwd()) {
+function changeStartOptionsJSON (options) {
+  if (
+    startOptionsConfig.useDocker !== options.useDocker ||
+    startOptionsConfig.blockchainNetwork !== options.blockchainNetwork
+  ) {
+    const openFile = fs.openSync(_config.startOptions, 'w')
+    fs.writeSync(openFile, JSON.stringify(options, null, ' '), 0, 'utf-8')
+    fs.closeSync(openFile)
+  }
+}
+
+function startCLICommand (command, target) {
   return new Promise((resolve, reject) => {
-    const startChildProcess = spawn(command, {shell: true, stdio: 'inherit', cwd: target})
+    const startChildProcess = spawn(
+      command,
+      {
+        shell: true,
+        stdio: 'inherit',
+        cwd: target
+      }
+    )
 
     startChildProcess.on('error', error => reject(error))
     startChildProcess.on('exit', code => {
@@ -47,22 +66,6 @@ async function checkLatestVersion () {
   } catch (error) {
     throw error
   }
-}
-
-function checkGlobalDepend () {
-  const log = []
-  const checkDepends = spawn('docker -v && docker-compose -v; node -v', {shell: true})
-  checkDepends.stdout.on('data', data => log.push(`${data}`))
-  checkDepends.stderr.on('data', errData => log.push(`${chalk.bgRed.blac(' Error:TypeERRDATA ')} ${chalk.red(errData)}`))
-
-  checkDepends
-    .on('error', err => console.error(err))
-    .on('exit', code => {
-      if (code !== 0) {
-        console.error(`${chalk.bgRed.black(' Error:TypeDependsCHECK ')} ${chalk.red('docker or docker-compose not installed please install of doc [https://docs.docker.com/toolbox/]')}`)
-        exitProgram(process.pid)
-      }
-    })
 }
 
 function exitProgram (pid, error, exitCode) {
@@ -127,7 +130,7 @@ module.exports = {
   addExitListener,
   startPM2Service,
   deletePM2Service,
-  checkGlobalDepend,
   checkLatestVersion,
+  changeStartOptionsJSON,
   recursiveCopyDirectory
 }

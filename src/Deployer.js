@@ -6,21 +6,37 @@ module.exports = class Deployer {
     this._params = params
   }
 
-  async migrateContract (blockchainNetwork = 'local') {
+  async migrateContract (options) {
+    let blockchainNetwork = options.network
+
+    if (!options.stdmigrate) {
+      process.env.CONTRACTS_PATH = path.join(
+        process.cwd(),
+        './src/contracts'
+      )
+    }
+
+    if (!blockchainNetwork) {
+      blockchainNetwork = (await this._params.prompt(
+        this._params.getQuestion('selectBlockchainNetwork')
+      )).blockchainNetwork
+    }
+
     try {
-      // process.env.CONTRACTS_PATH = path.join(process.cwd(), './src/contracts')
       if (blockchainNetwork !== 'local') {
-        process.env.MNEMONIC = (await this._params.prompt({
-          type: 'input',
-          name: 'mnemonic',
-          message: 'Input mnemonic for deploy contract to the test network'
-        })).mnemonic
+        process.env.MNEMONIC = (await this._params.prompt(
+          this._params.getQuestion('inputMnemonic')
+        )).mnemonic
       }
 
-      const contractMigrate = await Utils.startCLICommand(`npm run migrate:${blockchainNetwork}`)
+      const contractMigrate = await Utils.startCLICommand(
+        `npm run migrate:${blockchainNetwork}`,
+        path.join(__dirname, '../')
+      )
+
       if (contractMigrate.status === 'success') {
         console.log(`Contracts deploy to ${blockchainNetwork} successed`)
-        return true
+        return contractMigrate.status
       }
     } catch (error) {
       throw error
@@ -32,6 +48,6 @@ module.exports = class Deployer {
   }
 
   async deployGameToIPFS () {
-
+    console.log('comming soon...')
   }
 }
