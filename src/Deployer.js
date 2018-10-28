@@ -1,6 +1,6 @@
 const path = require('path')
 const Utils = require('./Utils')
-const { IpfsTransportProvider } = require('dc-messaging')
+
 module.exports = class Deployer {
   constructor (params) {
     this._params = params
@@ -8,7 +8,6 @@ module.exports = class Deployer {
 
   async migrateContract (options) {
     let blockchainNetwork = options.network
-
     if (!options.stdmigrate) {
       process.env.CONTRACTS_PATH = path.join(
         process.cwd(),
@@ -16,13 +15,13 @@ module.exports = class Deployer {
       )
     }
 
-    if (!blockchainNetwork) {
-      blockchainNetwork = (await this._params.prompt(
-        this._params.getQuestion('selectBlockchainNetwork')
-      )).blockchainNetwork
-    }
-
     try {
+      if (!blockchainNetwork) {
+        blockchainNetwork = (await this._params.prompt(
+          this._params.getQuestion('selectBlockchainNetwork')
+        )).blockchainNetwork
+      }
+
       if (blockchainNetwork !== 'local') {
         process.env.MNEMONIC = (await this._params.prompt(
           this._params.getQuestion('inputMnemonic')
@@ -37,6 +36,8 @@ module.exports = class Deployer {
       if (contractMigrate.status === 'success') {
         console.log(`Contracts deploy to ${blockchainNetwork} successed`)
         return contractMigrate.status
+      } else {
+        throw new Error('Contracts is not migrate to the network')
       }
     } catch (error) {
       throw error
@@ -44,7 +45,9 @@ module.exports = class Deployer {
   }
 
   async uploadGameToBankroller () {
-    const provider = await IpfsTransportProvider.create()
+    console.log('comming soon...')
+    // const provider = await IpfsTransportProvider.create()
+    // const getPeerInterface = await provider.getRemoteInterface(platformId)
   }
 
   async deployGameToIPFS () {

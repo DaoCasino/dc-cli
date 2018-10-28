@@ -71,7 +71,7 @@ module.exports = class DApp extends Deployer {
   async startBankrollerWithNetwork (options) {
     let startInBackground = options.background
     let blockchainNetwork = options.network
-    let privateKeyToBankroller = options.privatekey || _config.bankrollerLocalPrivateKey
+    process.env.ACCOUNT_PRIVATE_KEY = options.privatekey || _config.bankrollerLocalPrivateKey
 
     try {
       if (!blockchainNetwork) {
@@ -81,7 +81,7 @@ module.exports = class DApp extends Deployer {
       }
 
       if (blockchainNetwork !== 'local') {
-        privateKeyToBankroller = (await this._params.prompt(
+        process.env.ACCOUNT_PRIVATE_KEY = (await this._params.prompt(
           this._params.getQuestion('inputPrivateKey')
         )).privateKeyToBankroller
       }
@@ -92,8 +92,6 @@ module.exports = class DApp extends Deployer {
         )).startInBackground
       }
 
-      process.env.ACCOUNT_PRIVATE_KEY = privateKeyToBankroller
-
       if (startInBackground) {
         await Utils.startPM2Service({
           cwd: path.join(__dirname, '../'),
@@ -103,12 +101,10 @@ module.exports = class DApp extends Deployer {
           args: `run start:bankroller_core:${blockchainNetwork}`
         })
 
-        console.log(`
-
+        console.log(`\n
         Bankroller start in background with pm2
         for show logs bankroller please run ${chalk.green('dc-cli logs --bankroller')}
-        or ${chalk.green(`pm2 logs bankroller_core:${blockchainNetwork}`)}
-  
+        or ${chalk.green(`pm2 logs bankroller_core:${blockchainNetwork}`)}\n
         `)
       } else {
         await Utils.startCLICommand(
@@ -141,25 +137,21 @@ module.exports = class DApp extends Deployer {
         })
       }
     } catch (error) {
+      await this.stop()
       Utils.exitProgram(process.pid, error, 1)
     }
   }
 
   async _startDockerLocalENV (startOptions = startOptionsConfig) {
     process.env.ACCOUNT_PRIVATE_KEY = _config.bankrollerLocalPrivateKey
+
     try {
       await Utils.startCLICommand('docker -v && docker-compose -v', process.cwd())
-      await Utils.startCLICommand(
-        'docker-compose up -d',
-        path.join(__dirname, '../')
-      )
-
-      await this.migrateContract({
-        network: startOptions.blockchainNetwork
-      })
-      console.log('coming soon...')
+      await Utils.startCLICommand('docker-compose up -d', path.join(__dirname, '../'))
+      await this.migrateContract({ network: startOptions.blockchainNetwork })
     } catch (error) {
-      throw error
+      await this.stop()
+      Utils.exitProgram(process.pid, error, 1)
     }
   }
 }

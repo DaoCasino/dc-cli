@@ -30,7 +30,7 @@ module.exports = {
     }
   ],
 
-  bankrollerLocalPrivateKey: '0x0dbbe8e4ae425a6d2687f1a7e3ba17bc98c673636790f1b8ad91193c05875ef1',
+  bankrollerLocalPrivateKey: '0x1882c2a6d0df1210d643f82f69d0bdfa0e2e1eaa963384826a4f24d5b5529e10',
 
   isWin           : /^win/.test(process.platform),
   ASCIIColor      : /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
