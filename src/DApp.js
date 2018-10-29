@@ -31,7 +31,7 @@ module.exports = class DApp extends Deployer {
         : await this._startDockerLocalENV(startOptions)
 
       await Utils.startCLICommand(
-        'npm run start:local',
+        'npm run start',
         path.resolve(process.cwd())
       )
     } catch (error) {
@@ -63,8 +63,8 @@ module.exports = class DApp extends Deployer {
     }
 
     (!startOptionsConfig.useDocker)
-      ? Utils.startCLICommand(`npm run logs:pm2:${targetLog}`)
-      : Utils.startCLICommand(`npm run logs:docker:${targetLog}`)
+      ? Utils.startCLICommand(`npm run logs:pm2:${targetLog}`, path.join(__dirname, '../'))
+      : Utils.startCLICommand(`npm run logs:docker:${targetLog}`, path.join(__dirname, '../'))
   }
 
   async startBankrollerWithNetwork (options) {

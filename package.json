@@ -47,8 +47,8 @@
     "migrate:ropsten": "dc-protocol migrate --network ropsten",
     "migrate:rinkeby": "dc-protocol migrate --network rinkeby",
 
-    "logs:pm2:testrpc": "pm2 logs dc_protocol",
-    "logs:pm2:bankroller": "pm2 logs bankroller_core",
+    "logs:pm2:testrpc": "pm2 logs dc_protocol --lines=100",
+    "logs:pm2:bankroller": "pm2 logs bankroller_core --lines=100",
     "logs:docker:testrpc": "",
     "logs:docker:bankroller": ""
   },

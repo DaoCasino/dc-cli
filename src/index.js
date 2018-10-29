@@ -104,7 +104,7 @@ module.exports = class CLIInstance {
     }
 
     const downloadData = await download(
-      `https://github.com/${templateName}/archive/master.zip`, targetDirectory, {
+      `https://github.com/${templateName}/archive/development.zip`, targetDirectory, {
         extract: true,
         strip: 1,
         mode: '666',
