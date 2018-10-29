@@ -1,13 +1,13 @@
 const fs = require('fs')
 const path = require('path')
 const Utils = require('./Utils')
-const { Bankroller } = require('bankroller-core/lib/dapps/Bankroller')
 const { PingService } = require('bankroller-core/lib/dapps/PingService')
 const { IpfsTransportProvider } = require('dc-messaging')
 
 module.exports = class Deployer {
   constructor (params) {
     this._params = params
+    this._gameUploadData = null
   }
 
   async migrateContract (options) {
@@ -49,73 +49,86 @@ module.exports = class Deployer {
   }
 
   async uploadGameToBankroller (options) {
-    let bankrollerAddress = options.address
-    let platformID = options.platformid
-    let gamePath = options.gamepath
-    let gameName = options.gamename
+    this._gameUploadData = {
+      platformID: options.platformid,
+      gamePath: options.gamepath,
+      bankrollerAddress: options.address,
+      gameName: options.gamename,
+      gameFiles: null
+    }
 
-    if (!platformID) {
-      platformID = (await this._params.prompt(
+    if (!this._gameUploadData.platformID) {
+      this._gameUploadData.platformID = (await this._params.prompt(
         this._params.getQuestion('inputPlatformID')
       )).platformID
     }
 
-    if (!bankrollerAddress) {
-      bankrollerAddress = (await this._params.prompt(
+    if (!this._gameUploadData.bankrollerAddress) {
+      this._gameUploadData.bankrollerAddress = (await this._params.prompt(
         this._params.getQuestion('inputBankrollerAddress')
       )).bankrollerAddress
     }
 
-    if (!gameName) {
-      gameName = (await this._params.prompt(
+    if (!this._gameUploadData.gameName) {
+      this._gameUploadData.gameName = (await this._params.prompt(
         this._params.getQuestion('inputGameName')
       )).gamename
     }
 
-    if (!gamePath) {
-      gamePath = (await this._params.prompt(
+    if (!this._gameUploadData.gamePath) {
+      this._gameUploadData.gamePath = (await this._params.prompt(
         this._params.getQuestion('inputGamePath')
       )).gamePath
     }
 
-    const targetGamePath = path.join(process.cwd(), gamePath)
-
-    let gameFilesinBuffer = null
-    if (fs.existsSync(targetGamePath)) {
-      gameFilesinBuffer = fs.readdirSync(targetGamePath)
-        .map(fileName => {
-          const fileNameTemplate = /dapp[\.\-_](manifest|logic)\.js/
-          if (fileNameTemplate.test(fileName)) {
-            return {
-              fileName: fileName,
-              fileData: fs.readFileSync(path.join(targetGamePath, fileName))
-            }
-          }
-        })
-    }
-
-    const provider = await IpfsTransportProvider.create()
-    const getPeerInstance = await provider.getRemoteInterface(platformID)
-   
-    getPeerInstance.on(PingService.EVENT_JOIN, async data => {
-      console.log(data.ethAddress, bankrollerAddress, gameFilesinBuffer)
-      if (data.ethAddress === bankrollerAddress) {
-        try {
-          const bankrollerInstance = await provider.getRemoteInterface(data.apiRoomAddress)
-          const uploadGame = await bankrollerInstance.uploadGame(gameName, gameFilesinBuffer)
-          
-          if (uploadGame.status === 'ok') {
-            console.log('Upload game success')
-            provider.destroy()
-          }
-        } catch (error) {
-          Utils.exitProgram(process.pid, error, 1)
-        }
-      }
-    })
+    this._provider = await IpfsTransportProvider.create()
+    this._pingService = await this._provider.getRemoteInterface(this._gameUploadData.platformID)
+    this._pingService.on(PingService.EVENT_JOIN, async (data) => this._uploadGame(data))
   }
 
   async deployGameToIPFS () {
     console.log('comming soon...')
+  }
+
+  async _uploadGame (data) {
+    console.log(data.ethAddress, this._gameUploadData.bankrollerAddress)
+    if (data.ethAddress === this._gameUploadData.bankrollerAddress) {
+      // this._pingService.off(PingService.EVENT_JOIN, async (data) => this._uploadGame(data))
+      try {
+        let gameFiles = []
+        const targetGamePath = path.join(process.cwd(), this._gameUploadData.gamePath)
+        if (fs.existsSync(targetGamePath)) {
+          gameFiles = fs.readdirSync(targetGamePath)
+            .filter(fileName => {
+              const fileNameTemplate = /dapp[\.\-_](manifest|logic)\.js/
+              if (fileNameTemplate.test(fileName)) {
+                return {
+                  fileName: fileName,
+                  fileData: fs.readFileSync(path.join(targetGamePath, fileName))
+                }
+              }
+            })
+        }
+
+        const bankrollerInstance = await this._provider.getRemoteInterface(data.apiRoomAddress)
+        console.log({
+          name: this._gameUploadData.gameName,
+          files: gameFiles,
+          reload: true
+        })
+        const uploadGame = await bankrollerInstance.uploadGame({
+          name: this._gameUploadData.gameName,
+          files: gameFiles,
+          reload: true
+        })
+        
+        if (uploadGame.status === 'ok') {
+          console.log('Upload game success')
+          this._provider.destroy()
+        }
+      } catch (error) {
+        Utils.exitProgram(process.pid, error, 1)
+      }
+    }
   }
 }
