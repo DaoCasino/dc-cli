@@ -91,31 +91,27 @@ module.exports = class Deployer {
   }
 
   async _uploadGame (data) {
-    console.log(data.ethAddress, this._gameUploadData.bankrollerAddress)
-    if (data.ethAddress === this._gameUploadData.bankrollerAddress) {
-      // this._pingService.off(PingService.EVENT_JOIN, async (data) => this._uploadGame(data))
+    console.log(data.ethAddress.toLowerCase() === this._gameUploadData.bankrollerAddress.toLowerCase(), this._gameUploadData.bankrollerAddress)
+    if (data.ethAddress.toLowerCase() === this._gameUploadData.bankrollerAddress.toLowerCase()) {
       try {
         let gameFiles = []
         const targetGamePath = path.join(process.cwd(), this._gameUploadData.gamePath)
+        const fileNameTemplate = /dapp[\.\-_](manifest|logic)\.js/
+
         if (fs.existsSync(targetGamePath)) {
           gameFiles = fs.readdirSync(targetGamePath)
-            .filter(fileName => {
-              const fileNameTemplate = /dapp[\.\-_](manifest|logic)\.js/
-              if (fileNameTemplate.test(fileName)) {
-                return {
-                  fileName: fileName,
-                  fileData: fs.readFileSync(path.join(targetGamePath, fileName))
-                }
+            .filter(fileName => (fileNameTemplate.test(fileName)) && fileName)
+            .map(fileName => {
+              return {
+                fileName: fileName,
+                fileData: fs.readFileSync(path.join(targetGamePath, fileName), 'utf-8')
               }
             })
         }
 
+        console.log(gameFiles)
+
         const bankrollerInstance = await this._provider.getRemoteInterface(data.apiRoomAddress)
-        console.log({
-          name: this._gameUploadData.gameName,
-          files: gameFiles,
-          reload: true
-        })
         const uploadGame = await bankrollerInstance.uploadGame({
           name: this._gameUploadData.gameName,
           files: gameFiles,
@@ -124,7 +120,7 @@ module.exports = class Deployer {
         
         if (uploadGame.status === 'ok') {
           console.log('Upload game success')
-          this._provider.destroy()
+          // this._provider.destroy()
         }
       } catch (error) {
         Utils.exitProgram(process.pid, error, 1)

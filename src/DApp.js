@@ -30,10 +30,10 @@ module.exports = class DApp extends Deployer {
         ? await this._startLocalENV(startOptions)
         : await this._startDockerLocalENV(startOptions)
 
-      await Utils.startCLICommand(
-        'npm run start',
-        path.resolve(process.cwd())
-      )
+      // await Utils.startCLICommand(
+      //   'npm run start',
+      //   path.resolve(process.cwd())
+      // )
     } catch (error) {
       Utils.exitProgram(process.pid, error)
     }
