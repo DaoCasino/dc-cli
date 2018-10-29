@@ -108,19 +108,18 @@ module.exports = class Deployer {
               }
             })
         }
-
-        console.log(gameFiles)
-
+          
+        console.log(targetGamePath)
         const bankrollerInstance = await this._provider.getRemoteInterface(data.apiRoomAddress)
         const uploadGame = await bankrollerInstance.uploadGame({
           name: this._gameUploadData.gameName,
           files: gameFiles,
           reload: true
         })
-        
+  
         if (uploadGame.status === 'ok') {
           console.log('Upload game success')
-          // this._provider.destroy()
+          Utils.exitProgram(process.pid, false, 0)
         }
       } catch (error) {
         Utils.exitProgram(process.pid, error, 1)
