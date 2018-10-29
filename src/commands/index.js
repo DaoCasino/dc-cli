@@ -14,16 +14,16 @@ function run () {
    * If not enviroment and command needed env
    * then output error log and exit
    */
-  // if (
-  //   !Utils.checkENV() && process.argv[2] &&
-  //   _config.commands.find(command => (command.name === process.argv[2]) && command).env
-  // ) {
-  //   Utils.exitProgram(
-  //     process.pid,
-  //     chalk.red('\nError cannot created project please run dc-cli create and try again'),
-  //     0
-  //   )
-  // }
+  if (
+    !Utils.checkENV() && process.argv[2] &&
+    _config.commands.find(command => (command.name === process.argv[2]) && command).env
+  ) {
+    Utils.exitProgram(
+      process.pid,
+      chalk.red('\nError cannot created project please run dc-cli create and try again'),
+      0
+    )
+  }
 
   /** Parse command line arguments */
   program.parse(process.argv)
