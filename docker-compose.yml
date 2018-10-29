@@ -14,7 +14,7 @@ services:
     container_name: dc_protocol
     labels:
       - "testrpc with dao casino protocol contracts"
-    image: altvnv/dc-protocol:development-latest
+    image: daocasino/protocol:latest
     ports:
       - 8545:8545
     volumes:

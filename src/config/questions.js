@@ -78,6 +78,30 @@ module.exports = function (name) {
       name: 'startInBackground',
       message: 'Start bankroller in background',
       default: false
+    },
+
+    inputPlatformID: {
+      type: 'input',
+      name: 'platformID',
+      message: 'Input platform id for create connect with bankroller'
+    },
+
+    inputGamePath: {
+      type: 'input',
+      name: 'gamePath',
+      message: 'Input path to the game logic and dapp.manifest files'
+    },
+
+    inputBankrollerAddress: {
+      type: 'input',
+      name: 'bankrollerAddress',
+      message: 'Input bankroller address at upload game'
+    },
+
+    inputGameName: {
+      type: 'input',
+      name: 'gamename',
+      message: 'Input name for game'
     }
   }
 

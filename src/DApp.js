@@ -142,15 +142,18 @@ module.exports = class DApp extends Deployer {
   }
 
   async _startDockerLocalENV (startOptions = startOptionsConfig) {
-    process.env.ACCOUNT_PRIVATE_KEY = _config.bankrollerLocalPrivateKey
-
-    try {
-      await Utils.startCLICommand('docker -v && docker-compose -v', process.cwd())
-      await Utils.startCLICommand('docker-compose up -d', path.join(__dirname, '../'))
-      await this.migrateContract({ network: startOptions.blockchainNetwork })
-    } catch (error) {
-      await this.stop()
-      Utils.exitProgram(process.pid, error, 1)
-    }
+    console.log('comming soon...')
+    return
+    // process.env.ACCOUNT_PRIVATE_KEY = _config.bankrollerLocalPrivateKey
+    // process.env.CONTRACTS_PATH = path.join(process.cwd(), 'dapp/contracts')
+    
+    // try {
+    //   await Utils.startCLICommand('docker -v && docker-compose -v', process.cwd())
+    //   await Utils.startCLICommand('docker-compose up -d', path.join(__dirname, '../'))
+    //   await this.migrateContract({ network: startOptions.blockchainNetwork })
+    // } catch (error) {
+    //   await this.stop()
+    //   Utils.exitProgram(process.pid, error, 1)
+    // }
   }
 }

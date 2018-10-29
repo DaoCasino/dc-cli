@@ -1,5 +1,9 @@
+const fs = require('fs')
 const path = require('path')
 const Utils = require('./Utils')
+const { Bankroller } = require('bankroller-core/lib/dapps/Bankroller')
+const { PingService } = require('bankroller-core/lib/dapps/PingService')
+const { IpfsTransportProvider } = require('dc-messaging')
 
 module.exports = class Deployer {
   constructor (params) {
@@ -44,10 +48,71 @@ module.exports = class Deployer {
     }
   }
 
-  async uploadGameToBankroller () {
-    console.log('comming soon...')
-    // const provider = await IpfsTransportProvider.create()
-    // const getPeerInterface = await provider.getRemoteInterface(platformId)
+  async uploadGameToBankroller (options) {
+    let bankrollerAddress = options.address
+    let platformID = options.platformid
+    let gamePath = options.gamepath
+    let gameName = options.gamename
+
+    if (!platformID) {
+      platformID = (await this._params.prompt(
+        this._params.getQuestion('inputPlatformID')
+      )).platformID
+    }
+
+    if (!bankrollerAddress) {
+      bankrollerAddress = (await this._params.prompt(
+        this._params.getQuestion('inputBankrollerAddress')
+      )).bankrollerAddress
+    }
+
+    if (!gameName) {
+      gameName = (await this._params.prompt(
+        this._params.getQuestion('inputGameName')
+      )).gamename
+    }
+
+    if (!gamePath) {
+      gamePath = (await this._params.prompt(
+        this._params.getQuestion('inputGamePath')
+      )).gamePath
+    }
+
+    const targetGamePath = path.join(process.cwd(), gamePath)
+
+    let gameFilesinBuffer = null
+    if (fs.existsSync(targetGamePath)) {
+      gameFilesinBuffer = fs.readdirSync(targetGamePath)
+        .map(fileName => {
+          const fileNameTemplate = /dapp[\.\-_](manifest|logic)\.js/
+          if (fileNameTemplate.test(fileName)) {
+            return {
+              fileName: fileName,
+              fileData: fs.readFileSync(path.join(targetGamePath, fileName))
+            }
+          }
+        })
+    }
+
+    const provider = await IpfsTransportProvider.create()
+    const getPeerInstance = await provider.getRemoteInterface(platformID)
+   
+    getPeerInstance.on(PingService.EVENT_JOIN, async data => {
+      console.log(data.ethAddress, bankrollerAddress, gameFilesinBuffer)
+      if (data.ethAddress === bankrollerAddress) {
+        try {
+          const bankrollerInstance = await provider.getRemoteInterface(data.apiRoomAddress)
+          const uploadGame = await bankrollerInstance.uploadGame(gameName, gameFilesinBuffer)
+          
+          if (uploadGame.status === 'ok') {
+            console.log('Upload game success')
+            provider.destroy()
+          }
+        } catch (error) {
+          Utils.exitProgram(process.pid, error, 1)
+        }
+      }
+    })
   }
 
   async deployGameToIPFS () {

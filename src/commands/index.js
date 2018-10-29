@@ -114,7 +114,10 @@ program
   .command('upload')
   .description(`${chalk.green(commands['upload'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
-  .option('-p, --path <pathToGame>', 'Path to upload dapp.logic.js and dapp.manifest.js')
+  .option('-p, --platformid <platformid>')
+  .option('-a, --address <bankrollerAddress>', 'Bankroller address')
+  .option('-g, --game <gamepath>', 'Path to upload dapp.logic.js and dapp.manifest.js')
+  .option('-n, --name <gameName>', 'Name for game')
   .action(command => CLI.DApp.uploadGameToBankroller(command))
 
 program
