@@ -1,4 +1,3 @@
-const fs = require('fs')
 const path = require('path')
 const chalk = require('chalk')
 const Utils = require('./Utils')
@@ -45,7 +44,7 @@ module.exports = class DApp extends Deployer {
       ? await Utils.deletePM2Service('all')
       : await Utils.startCLICommand('docker-compose down', path.join(__dirname, '../'))
 
-    console.log('Enviroment stoped')
+    console.log(chalk.green('\nEnviroment stoped\n'))
   }
 
   async viewLogs (options) {

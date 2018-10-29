@@ -11,7 +11,7 @@ module.exports = class Deployer {
     if (!options.stdmigrate) {
       process.env.CONTRACTS_PATH = path.join(
         process.cwd(),
-        './src/contracts'
+        './dapp/contracts'
       )
     }
 
