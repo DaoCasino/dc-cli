@@ -1,6 +1,6 @@
 {
   "name": "dc-cli",
-  "version": "0.1.4",
+  "version": "0.2.2",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
   "preferGlobal": true,
@@ -8,10 +8,10 @@
   "homepage": "developers.dao.casino",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DaoCasino/SDK"
+    "url": "https://github.com/DaoCasino/dc-cli"
   },
   "bugs": {
-    "url": "https://github.com/DaoCasino/SDK/issues",
+    "url": "https://github.com/DaoCasino/dc-cli/issues",
     "email": "ilya.dev@dao.casino"
   },
   "engines": {
