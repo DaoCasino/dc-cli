@@ -1,6 +1,6 @@
 {
   "name": "dc-cli",
-  "version": "0.1.14",
+  "version": "0.1.4",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
   "preferGlobal": true,
@@ -40,7 +40,7 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
-    "dc-protocol": "^0.1.2",
+    "dc-protocol": "^0.1.4",
     "download": "^7.1.0",
     "inquirer": "^6.0.0",
     "ncp": "^2.0.0",
