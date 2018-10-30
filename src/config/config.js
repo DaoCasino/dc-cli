@@ -37,6 +37,5 @@ module.exports = {
   packageJSON     : path.join(__dirname, '../../package.json'),
   projectsENV     : path.join(process.cwd(), './node_modules/dc-webapi'),
   startOptions    : path.join(__dirname, './startOptions.json'),
-  packageEnvJSON  : path.join(fs.realpathSync(process.cwd()), '_env/package.json'),
   defaultMnemonic : 'glass method front super auto hole know grace select prevent custom fancy'
 }

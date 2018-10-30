@@ -143,7 +143,7 @@ module.exports = class DApp extends Deployer {
 
   async _startDockerLocalENV (startOptions = startOptionsConfig) {
     console.log('comming soon...')
-    return
+    Utils.exitProgram(process.pid, false, 0)
     // process.env.ACCOUNT_PRIVATE_KEY = _config.bankrollerLocalPrivateKey
     // process.env.CONTRACTS_PATH = path.join(process.cwd(), 'dapp/contracts')
     

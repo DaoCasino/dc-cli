@@ -44,6 +44,7 @@ module.exports = class CLIInstance {
 
   async viewTemplateList () {
     try {
+      console.log(1)
       const updateChecked = await Utils.checkLatestVersion()
 
       if (updateChecked) {

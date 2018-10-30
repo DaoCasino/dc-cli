@@ -46,20 +46,24 @@ function startCLICommand (command, target) {
 
 async function checkLatestVersion () {
   try {
-    const latestVersion = (await npmCheck(require(_config.packageJSON))).latest
-    const targetVersion = require(_config.packageJSON).version
-
-    if (targetVersion < latestVersion) {
-      console.log('')
-      console.log(`${chalk.bgRgb(255, 194, 102).gray('  UPDATE AVALABLE  ')}`)
-      console.log(`
-        Please use ${chalk.green('npm i -g dc-cli@latest')},
-        to update for lasst version dc-cli
-
-        Last version: ${chalk.green(latestVersion)}
-        Your version: ${chalk.red(targetVersion)}
-      `)
-      console.log('')
+    const checkVersion = await npmCheck(require(_config.packageJSON))
+    if (checkVersion !== null) {
+      const latestVersion = checkVersion.latest
+      const targetVersion = require(_config.packageJSON).version
+      
+      if (targetVersion < latestVersion) {
+        console.log('')
+        console.log(`${chalk.bgRgb(255, 194, 102).gray('  UPDATE AVALABLE  ')}`)
+        console.log(`
+          Please use ${chalk.green('npm i -g dc-cli@latest')},
+          to update for lasst version dc-cli
+  
+          Last version: ${chalk.green(latestVersion)}
+          Your version: ${chalk.red(targetVersion)}
+        `)
+        console.log('')
+      }
+      return true
     }
 
     return true

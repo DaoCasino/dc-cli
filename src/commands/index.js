@@ -14,16 +14,17 @@ function run () {
    * If not enviroment and command needed env
    * then output error log and exit
    */
-  if (
-    !Utils.checkENV() && process.argv[2] &&
-    _config.commands.find(command => (command.name === process.argv[2]) && command).env
-  ) {
-    Utils.exitProgram(
-      process.pid,
-      chalk.red('\nError cannot created project please run dc-cli create and try again'),
-      0
-    )
-  }
+  const programArgs = process.argv.slice(2)
+  const targetCommand = _config.commands
+    .find(command => (command.name === programArgs[0]) && command)
+
+  // if (!Utils.checkENV() && targetCommand && targetCommand.env) {
+  //   Utils.exitProgram(
+  //     process.pid,
+  //     chalk.red('\nError cannot created project please run dc-cli create and try again'),
+  //     0
+  //   )
+  // }
 
   /** Parse command line arguments */
   program.parse(process.argv)
@@ -40,7 +41,7 @@ function run () {
 program.on('command:*', () => CLI.viewMenu(program.args))
 
 program
-  .version(`CLI version: ${chalk.red(_config.packageJSON.version)}`)
+  .version(`CLI version: ${chalk.red(require(_config.packageJSON).version)}`)
   .usage('<command> [options]')
   .description(chalk.green('CLI for light development with DC ENV'))
 
