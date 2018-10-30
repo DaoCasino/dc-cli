@@ -18,13 +18,13 @@ function run () {
   const targetCommand = _config.commands
     .find(command => (command.name === programArgs[0]) && command)
 
-  // if (!Utils.checkENV() && targetCommand && targetCommand.env) {
-  //   Utils.exitProgram(
-  //     process.pid,
-  //     chalk.red('\nError cannot created project please run dc-cli create and try again'),
-  //     0
-  //   )
-  // }
+  if (!Utils.checkENV() && targetCommand && targetCommand.env) {
+    Utils.exitProgram(
+      process.pid,
+      chalk.red('\nError cannot created project please run dc-cli create and try again'),
+      0
+    )
+  }
 
   /** Parse command line arguments */
   program.parse(process.argv)
