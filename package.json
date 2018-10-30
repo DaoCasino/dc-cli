@@ -1,6 +1,6 @@
 {
   "name": "dc-cli",
-  "version": "0.2.4",
+  "version": "0.2.52",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
   "preferGlobal": true,
@@ -33,7 +33,9 @@
     }
   },
   "scripts": {
-    "publish:npm": "npm publish --access=public",
+    "check_update": "ncu bankroller-core dc-protocol dc-messaging -a",
+    "publish:npm": "npm run check_update && npm publish --access=public",
+    
     "lint": "eslint ./lib ./bin",
     "test": "echo 'test'",
     
@@ -53,14 +55,14 @@
     "logs:docker:bankroller": ""
   },
   "dependencies": {
-    "bankroller-core": "*",
+    "bankroller-core": "^0.1.7",
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
-    "dc-protocol": "*",
+    "dc-protocol": "^0.1.6",
     "download": "^7.1.0",
     "inquirer": "^6.0.0",
     "ncp": "^2.0.0",
-    "dc-messaging": "*",
+    "dc-messaging": "^0.1.7",
     "node-machine-id": "^1.1.10",
     "pm2": "^3.0.4",
     "truffle": "^5.0.0-beta.0",
@@ -74,6 +76,7 @@
     "eslint-plugin-node": "^5.2.1",
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
-    "husky": "^1.0.0-rc.13"
+    "husky": "^1.0.0-rc.13",
+    "npm-check-updates": "^2.14.2"
   }
 }

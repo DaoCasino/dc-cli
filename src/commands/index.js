@@ -18,7 +18,10 @@ function run () {
   const targetCommand = _config.commands
     .find(command => (command.name === programArgs[0]) && command)
 
-  if (!Utils.checkENV() && targetCommand && targetCommand.env) {
+  if (
+    (!programArgs.includes('-f') && !programArgs.includes('--force')) &&
+    (!Utils.checkENV() && targetCommand && targetCommand.env)
+  ) {
     Utils.exitProgram(
       process.pid,
       chalk.red('\nError cannot created project please run dc-cli create and try again'),
@@ -78,6 +81,7 @@ program
   .usage(`${chalk.red('[options]')}`)
   .option('-d, --docker', 'Start env in docker containers')
   .option('-n, --network <network>', 'Set blockchain network for start env')
+  .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.start(command))
 
 program
@@ -108,6 +112,7 @@ program
   .command('stop')
   .description(`${chalk.green(commands['stop'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
+  .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.stop(command))
 
 program
@@ -116,6 +121,7 @@ program
   .usage(`${chalk.red('[options]')}`)
   .option('-b, --bankroller', 'View bankroller logs')
   .option('-t, --testrpc', 'View testrpc logs')
+  .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.viewLogs(command))
 
 program
@@ -134,6 +140,7 @@ program
   .option('-a, --address <bankrollerAddress>', 'Bankroller address')
   .option('-g, --game-path <gamepath>', 'Path to upload dapp.logic.js and dapp.manifest.js')
   .option('-n, --name <gameName>', 'Name for game')
+  .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.uploadGameToBankroller(command))
   .on('--help', () => {
     console.log(`
@@ -155,12 +162,14 @@ program
   .command('deploy')
   .description(`${chalk.green(commands['deploy'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
+  .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.deployGameToIPFS(command))
 
 program
   .command('publish')
   .description(`${chalk.green(commands['publish'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
+  .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.publishGame(command))
 
 run()

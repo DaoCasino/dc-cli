@@ -50,7 +50,7 @@ async function checkLatestVersion () {
     if (checkVersion !== null) {
       const latestVersion = checkVersion.latest
       const targetVersion = require(_config.packageJSON).version
-      
+
       if (targetVersion < latestVersion) {
         console.log('')
         console.log(`${chalk.bgRgb(255, 194, 102).gray('  UPDATE AVALABLE  ')}`)
