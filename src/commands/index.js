@@ -56,19 +56,19 @@ program
   .option('-y, --yarn', 'Use yarn package manager for install')
   .action((directory, template, command) => CLI.createProject(directory, template, command))
   .on('--help', () => {
-    console.log('')
-    console.log(`  Template call:`)
-    console.log('')
-    console.log(`    dc-cli ${chalk.blue('create')} ${chalk.red('<template-name> <project-name>')}`)
-    console.log('')
-    console.log('  Ecample:')
-    console.log('')
-    console.log(`    dc-cli ${chalk.blue('create')} ${chalk.red('webpack my-project')}`)
-    console.log('')
-    console.log(chalk.yellow(`
-      If arguments are not passed then cli will ask,
-      your template name and project name
-    `))
+    console.log(`
+      Template run:
+
+        dc-cli create ${chalk.cyan('<template-name> <project-name> [options]')}
+      
+      Example run:
+
+        dc-cli create ${chalk.green('webpack my-project')}
+      ${chalk.yellow(`
+        If arguments are not passed then cli will
+        ask, leading questions and set needed arguments 
+      `)}
+    `)
   })
 
 program
@@ -87,6 +87,21 @@ program
   .option('-p, --privatekey <privatekey>', 'Input private key for start bankroller in needed network')
   .option('-n, --network <network>', 'Start bankroller in target blockchain network')
   .action(command => CLI.DApp.startBankrollerWithNetwork(command))
+  .on('--help', () => {
+    console.log(`
+      Template run:
+
+        dc-cli bankup ${chalk.cyan('[options]')}
+
+      Example run:
+
+        dc-cli bankup --background -nnetwork ${chalk.green('ropsten')} -privatekey ${chalk.green('0x1882c2a6d0df1210d643f82f69d0bdfa0e2e1eaa963384826a4f24d5b5529e10')}
+      ${chalk.yellow(`
+        If arguments are not passed then cli will
+        ask, leading questions and set needed arguments 
+      `)}
+    `)
+  })
 
 program
   .command('stop')
@@ -116,22 +131,35 @@ program
   .usage(`${chalk.red('[options]')}`)
   .option('-p, --platformid <platformid>')
   .option('-a, --address <bankrollerAddress>', 'Bankroller address')
-  .option('-g, --game <gamepath>', 'Path to upload dapp.logic.js and dapp.manifest.js')
+  .option('-g, --game-path <gamepath>', 'Path to upload dapp.logic.js and dapp.manifest.js')
   .option('-n, --name <gameName>', 'Name for game')
   .action(command => CLI.DApp.uploadGameToBankroller(command))
+  .on('--help', () => {
+    console.log(`
+      Template run:
+
+        dc-cli upload ${chalk.cyan('[options]')}
+
+      Example run:
+
+        dc-cli upload --platformid ${chalk.green('DC_Platform')} --address ${chalk.green('0xf3b7416161E69B4fbF8b7E61a9326F4251ca0a5D')} --game-path ${chalk.green('./dapp')} --name ${chalk.green('example_game_v1')}
+      ${chalk.yellow(`
+        If arguments are not passed then cli will
+        ask, leading questions and set needed arguments 
+      `)}
+    `)
+  })
 
 program
   .command('deploy')
   .description(`${chalk.green(commands['deploy'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
-  .option('-r, --ropsten', 'Deploy to ropsten network')
-  .option('-l, --local', 'Deploy to local network')
-  .option('-c, --no-contract', 'Skip deploy contract')
-  .option('-d, --no-dapp', 'Skip deploy DApp')
+  .action(command => CLI.DApp.deployGameToIPFS(command))
 
 program
   .command('publish')
   .description(`${chalk.green(commands['publish'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
+  .action(command => CLI.DApp.publishGame(command))
 
 run()

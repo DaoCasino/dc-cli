@@ -51,9 +51,9 @@ module.exports = class Deployer {
   async uploadGameToBankroller (options) {
     this._gameUploadData = {
       platformID: options.platformid,
-      gamePath: options.gamepath,
+      gamePath: options.gamePath,
       bankrollerAddress: options.address,
-      gameName: options.gamename,
+      gameName: options.name,
       gameFiles: null
     }
 
@@ -90,6 +90,10 @@ module.exports = class Deployer {
     console.log('comming soon...')
   }
 
+  async publishGame () {
+    console.log('comming soon...')
+  }
+
   async _uploadGame (data) {
     console.log(data.ethAddress.toLowerCase() === this._gameUploadData.bankrollerAddress.toLowerCase(), this._gameUploadData.bankrollerAddress)
     if (data.ethAddress.toLowerCase() === this._gameUploadData.bankrollerAddress.toLowerCase()) {
@@ -109,7 +113,6 @@ module.exports = class Deployer {
             })
         }
           
-        console.log(targetGamePath)
         const bankrollerInstance = await this._provider.getRemoteInterface(data.apiRoomAddress)
         const uploadGame = await bankrollerInstance.uploadGame({
           name: this._gameUploadData.gameName,
