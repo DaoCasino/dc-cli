@@ -58,7 +58,7 @@ program
   .description(`${chalk.green(commands['create'].description.trim())} `)
   .usage(`${chalk.red('<template-name> <project-name>')}`)
   .option('-y, --yarn', 'Use yarn package manager for install')
-  .action((directory, template, command) => CLI.createProject(directory, template, command))
+  .action((template, directory, command) => CLI.createProject(template, directory, command))
   .on('--help', () => {
     console.log(`
       Template run:
@@ -91,7 +91,7 @@ program
   .option('-b, --background', 'Start bankroller in background (pm2)')
   .option('-p, --privatekey <privatekey>', 'Input private key for start bankroller in needed network')
   .option('-n, --network <network>', 'Start bankroller in target blockchain network')
-  .action(command => CLI.DApp.startBankrollerWithNetwork(command))
+  .action(async command => await CLI.DApp.startBankrollerWithNetwork(command))
   .on('--help', () => {
     console.log(`
       Template run:

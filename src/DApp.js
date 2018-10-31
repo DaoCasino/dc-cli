@@ -92,7 +92,7 @@ module.exports = class DApp extends Deployer {
       }
 
       if (startInBackground) {
-        await Utils.startPM2Service({
+        const bankrollerStartinPM2 = await Utils.startPM2Service({
           cwd: path.join(__dirname, '../'),
           name: 'bankroller_core',
           exec_mode: 'fork',
@@ -100,14 +100,20 @@ module.exports = class DApp extends Deployer {
           args: `run start:bankroller_core:${blockchainNetwork}`
         })
 
-        console.log(`\n
-        Bankroller start in background with pm2
-        for show logs bankroller please run ${chalk.green('dc-cli logs --bankroller')}
-        or ${chalk.green(`pm2 logs bankroller_core:${blockchainNetwork}`)}\n
-        `)
+        if (bankrollerStartinPM2) {
+          console.log(`\n
+          Bankroller start in background with pm2
+          for show logs bankroller please run ${chalk.green('dc-cli logs --bankroller')}
+          or ${chalk.green(`pm2 logs bankroller_core:${blockchainNetwork}`)}\n
+          `)
+
+          console.log(options)
+          return true
+        }
       } else {
         await Utils.startCLICommand(
-          `npm run start:bankroller_core:${blockchainNetwork}`
+          `npm run start:bankroller_core:${blockchainNetwork}`,
+          path.join(__dirname, '../')
         )
       }
     } catch (error) {
@@ -146,7 +152,7 @@ module.exports = class DApp extends Deployer {
     Utils.exitProgram(process.pid, false, 0)
     // process.env.ACCOUNT_PRIVATE_KEY = _config.bankrollerLocalPrivateKey
     // process.env.CONTRACTS_PATH = path.join(process.cwd(), 'dapp/contracts')
-    
+
     // try {
     //   await Utils.startCLICommand('docker -v && docker-compose -v', process.cwd())
     //   await Utils.startCLICommand('docker-compose up -d', path.join(__dirname, '../'))

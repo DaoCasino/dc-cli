@@ -63,7 +63,7 @@ module.exports = class CLIInstance {
     }
   }
 
-  async createProject (directory, template, options) {
+  async createProject (template, directory, options) {
     await Utils.checkLatestVersion()
 
     if (typeof template === 'undefined') {
@@ -78,8 +78,8 @@ module.exports = class CLIInstance {
       )).directory
     }
 
-    let useYarn = false
-    if (!options.yarn) {
+    let useYarn = options.yarn
+    if (!useYarn) {
       useYarn = (await this._prompt(
         this._getQuestion('useYarn')
       )).useYarn
