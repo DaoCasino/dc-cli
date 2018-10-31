@@ -101,14 +101,18 @@ module.exports = class DApp extends Deployer {
         })
 
         if (bankrollerStartinPM2) {
+          Utils.changeStartOptionsJSON({
+            docker: false,
+            blockchainNetwork: blockchainNetwork
+          })
+
           console.log(`\n
           Bankroller start in background with pm2
           for show logs bankroller please run ${chalk.green('dc-cli logs --bankroller')}
           or ${chalk.green(`pm2 logs bankroller_core:${blockchainNetwork}`)}\n
-          `)
+          `);
 
-          console.log(options)
-          return true
+          (options._name === 'bankrollup') && Utils.exitProgram(process.pid, false, 0)
         }
       } else {
         await Utils.startCLICommand(
@@ -138,6 +142,7 @@ module.exports = class DApp extends Deployer {
       if (migrateToLocalNetwork === 'success') {
         await this.startBankrollerWithNetwork({
           background: true,
+          exit: false,
           network: startOptions.blockchainNetwork
         })
       }
