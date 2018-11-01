@@ -29,11 +29,6 @@ module.exports = class DApp extends Deployer {
       (!startOptions.useDocker)
         ? await this._startLocalENV(startOptions)
         : await this._startDockerLocalENV(startOptions)
-
-      await Utils.startCLICommand(
-        'npm run start',
-        path.resolve(process.cwd())
-      )
     } catch (error) {
       Utils.exitProgram(process.pid, error)
     }
@@ -70,7 +65,7 @@ module.exports = class DApp extends Deployer {
   async startBankrollerWithNetwork (options) {
     let startInBackground = options.background
     let blockchainNetwork = options.network
-    process.env.ACCOUNT_PRIVATE_KEY = options.privatekey || _config.bankrollerLocalPrivateKey
+    let bankrollerPrivatekey = options.privatekey
 
     try {
       if (!blockchainNetwork) {
@@ -79,8 +74,8 @@ module.exports = class DApp extends Deployer {
         )).blockchainNetwork
       }
 
-      if (blockchainNetwork !== 'local') {
-        process.env.ACCOUNT_PRIVATE_KEY = (await this._params.prompt(
+      if (blockchainNetwork !== 'local' && !bankrollerPrivatekey) {
+        bankrollerPrivatekey = (await this._params.prompt(
           this._params.getQuestion('inputPrivateKey')
         )).privateKeyToBankroller
       }
@@ -96,6 +91,7 @@ module.exports = class DApp extends Deployer {
           cwd: path.join(__dirname, '../'),
           name: 'bankroller_core',
           exec_mode: 'fork',
+          env: { 'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey },
           script: 'npm',
           args: `run start:bankroller_core:${blockchainNetwork}`
         })
@@ -110,14 +106,17 @@ module.exports = class DApp extends Deployer {
           Bankroller start in background with pm2
           for show logs bankroller please run ${chalk.green('dc-cli logs --bankroller')}
           or ${chalk.green(`pm2 logs bankroller_core:${blockchainNetwork}`)}\n
-          `);
+          `)
 
-          (options._name === 'bankrollup') && Utils.exitProgram(process.pid, false, 0)
+          Utils.exitProgram(process.pid, false, 0)
         }
       } else {
         await Utils.startCLICommand(
           `npm run start:bankroller_core:${blockchainNetwork}`,
-          path.join(__dirname, '../')
+          path.join(__dirname, '../'),
+          {
+            'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey
+          }
         )
       }
     } catch (error) {
@@ -143,6 +142,7 @@ module.exports = class DApp extends Deployer {
         await this.startBankrollerWithNetwork({
           background: true,
           exit: false,
+          privatekey: _config.bankrollerLocalPrivateKey,
           network: startOptions.blockchainNetwork
         })
       }
