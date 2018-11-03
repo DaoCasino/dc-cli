@@ -24,7 +24,11 @@ function changeStartOptionsJSON (options) {
   }
 }
 
-function startCLICommand (command, target, userEnv = {}) {
+function startCLICommand (
+  command,
+  target,
+  userEnv = {}
+) {
   return new Promise((resolve, reject) => {
     const asignEnv = { ...process.env, ...userEnv }
     const startChildProcess = spawn(
@@ -74,7 +78,11 @@ async function checkLatestVersion () {
   }
 }
 
-function exitProgram (pid, error, exitCode = 1) {
+function exitProgram (
+  pid,
+  error,
+  exitCode = 0
+) {
   if (error) {
     console.error(error)
   }
@@ -96,14 +104,21 @@ function addExitListener (callback = false) {
 
 function startPM2Service (config) {
   return new Promise((resolve, reject) => {
-    pm2.connect(err => {
-      (err) && reject(err)
+    pm2.connect(error => {
+      (error) && reject(error)
 
-      pm2.start(config, (err, apps) => {
-        (err) ? reject(err) : resolve(true)
+      pm2.start(config, (error, apps) => {
+        (error) ? reject(error) : resolve(apps)
       })
     })
   })
+}
+
+async function checkPM2Service (processName) {
+  try {
+  } catch (error) {
+    throw error
+  }
 }
 
 function deletePM2Service (name) {
@@ -127,6 +142,10 @@ function recursiveCopyDirectory (targetPath) {
   })
 }
 
+function callbackToPromise () {
+
+}
+
 module.exports = {
   sudo,
   checkENV,
@@ -135,6 +154,7 @@ module.exports = {
   startCLICommand,
   addExitListener,
   startPM2Service,
+  checkPM2Service,
   deletePM2Service,
   checkLatestVersion,
   changeStartOptionsJSON,

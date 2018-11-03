@@ -74,7 +74,9 @@ module.exports = class DApp extends Deployer {
         )).blockchainNetwork
       }
 
-      if (blockchainNetwork !== 'local' && !bankrollerPrivatekey) {
+      if (blockchainNetwork === 'local') {
+        await Utils.checkPM2Service('dc_protocol')
+      } else if (!bankrollerPrivatekey) {
         bankrollerPrivatekey = (await this._params.prompt(
           this._params.getQuestion('inputPrivateKey')
         )).privateKeyToBankroller
