@@ -1,17 +1,32 @@
-const path = require('path')
-const chalk = require('chalk')
-const Utils = require('./Utils')
-const _config = require('./config/config')
-const Deployer = require('./Deployer')
-const startOptionsConfig = require(_config.startOptions)
+import {
+  DAppInstance,
+  StartOptions,
+  InstanceParams,
+  StartBankrollerParams
+} from './interfaces/IDApp'
+import path from 'path'
+import chalk from 'chalk'
+import * as Utils from './Utils'
+import debug from 'debug'
+import config from './config/config'
+import Deployer from './Deployer'
+import program from 'commander'
+import startOptionsConfig from './config/startOptions.json'
+import { CLIConfigInterface } from './interfaces/ICLIConfig'
 
-module.exports = class DApp extends Deployer {
-  constructor (params) {
-    super()
+const log = debug('dc-cli')
+
+export default class DApp extends Deployer implements DAppInstance {
+  protected _params: InstanceParams
+  private _config: CLIConfigInterface
+
+  constructor (params: InstanceParams) {
+    super(params)
     this._params = params
+    this._config = config
   }
 
-  async start (options) {
+  async start (options: program.Command): Promise<void> {
     const startOptions = {
       useDocker: options.docker,
       blockchainNetwork: options.network || 'local'
@@ -34,15 +49,15 @@ module.exports = class DApp extends Deployer {
     }
   }
 
-  async stop () {
+  async stop (): Promise<void> {
     (!startOptionsConfig.useDocker)
       ? await Utils.deletePM2Service('all')
       : await Utils.startCLICommand('docker-compose down', path.join(__dirname, '../'))
 
-    console.log(chalk.green('\nEnviroment stoped\n'))
+    log(chalk.green('\nEnviroment stoped\n'))
   }
 
-  async viewLogs (options) {
+  async viewLogs (options): Promise<void> {
     let targetLog = 'bankroller'
     switch (true) {
       case options.testrpc:
@@ -62,7 +77,9 @@ module.exports = class DApp extends Deployer {
       : Utils.startCLICommand(`npm run logs:docker:${targetLog}`, path.join(__dirname, '../'))
   }
 
-  async startBankrollerWithNetwork (options) {
+  async startBankrollerWithNetwork (
+    options: program.Command | StartBankrollerParams
+  ): Promise<void> {
     let startInBackground = options.background
     let blockchainNetwork = options.network
     let bankrollerPrivatekey = options.privatekey
@@ -101,10 +118,10 @@ module.exports = class DApp extends Deployer {
         if (bankrollerStartinPM2) {
           Utils.changeStartOptionsJSON({
             docker: false,
-            blockchainNetwork: blockchainNetwork
+            blockchainNetwork
           })
 
-          console.log(`\n
+          log(`\n
           Bankroller start in background with pm2
           for show logs bankroller please run ${chalk.green('dc-cli logs --bankroller')}
           or ${chalk.green(`pm2 logs bankroller_core:${blockchainNetwork}`)}\n
@@ -126,7 +143,9 @@ module.exports = class DApp extends Deployer {
     }
   }
 
-  async _startLocalENV (startOptions = startOptionsConfig) {
+  async _startLocalENV (
+    startOptions: StartOptions = startOptionsConfig
+  ): Promise<void> {
     try {
       await Utils.startPM2Service({
         cwd: path.join(__dirname, '../'),
@@ -137,14 +156,15 @@ module.exports = class DApp extends Deployer {
       })
 
       const migrateToLocalNetwork = await this.migrateContract({
-        network: startOptions.blockchainNetwork
+        network: startOptions.blockchainNetwork,
+        stdmigrate: false
       })
 
       if (migrateToLocalNetwork === 'success') {
         await this.startBankrollerWithNetwork({
           background: true,
           exit: false,
-          privatekey: _config.bankrollerLocalPrivateKey,
+          privatekey: this._config.bankrollerLocalPrivateKey,
           network: startOptions.blockchainNetwork
         })
       }
@@ -154,8 +174,10 @@ module.exports = class DApp extends Deployer {
     }
   }
 
-  async _startDockerLocalENV (startOptions = startOptionsConfig) {
-    console.log('comming soon...')
+  async _startDockerLocalENV (
+    startOptions: StartOptions = startOptionsConfig
+  ): Promise<void> {
+    log('comming soon...')
     Utils.exitProgram(process.pid, false, 0)
     // process.env.ACCOUNT_PRIVATE_KEY = _config.bankrollerLocalPrivateKey
     // process.env.CONTRACTS_PATH = path.join(process.cwd(), 'dapp/contracts')

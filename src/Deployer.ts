@@ -1,16 +1,31 @@
-const fs = require('fs')
-const path = require('path')
-const Utils = require('./Utils')
-const { PingService } = require('bankroller-core/lib/dapps/PingService')
-const { IpfsTransportProvider } = require('dc-messaging')
+import {
+  DeployerInstance,
+  InstanceParams,
+  UploadGameData,
+  MigrationParams
+} from './interfaces/IDApp'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as Utils from './Utils'
+import debug from 'debug'
+import program from 'commander'
+import { PingService } from 'bankroller-core/lib/dapps/PingService'
+import { IpfsTransportProvider } from 'dc-messaging'
 
-module.exports = class Deployer {
-  constructor (params) {
+const log = debug('dc-cli')
+
+export default class Deployer implements DeployerInstance {
+  protected _params: InstanceParams
+  private _gameUploadData: UploadGameData
+  private _provider: IpfsTransportProvider
+  private _pingService
+
+  constructor (params: InstanceParams) {
     this._params = params
     this._gameUploadData = null
   }
 
-  async migrateContract (options) {
+  async migrateContract (options: program.Command | MigrationParams) {
     let blockchainNetwork = options.network
     if (!options.stdmigrate) {
       process.env.CONTRACTS_PATH = path.join(
@@ -38,7 +53,7 @@ module.exports = class Deployer {
       )
 
       if (contractMigrate.status === 'success') {
-        console.log(`Contracts deploy to ${blockchainNetwork} successed`)
+        log(`Contracts deploy to ${blockchainNetwork} successed`)
         return contractMigrate.status
       } else {
         throw new Error('Contracts is not migrate to the network')
@@ -48,7 +63,7 @@ module.exports = class Deployer {
     }
   }
 
-  async uploadGameToBankroller (options) {
+  async uploadGameToBankroller (options: any): Promise<void> {
     this._gameUploadData = {
       platformID: options.platformid,
       gamePath: options.gamePath,
@@ -87,15 +102,14 @@ module.exports = class Deployer {
   }
 
   async deployGameToIPFS () {
-    console.log('comming soon...')
+    log('comming soon...')
   }
 
   async publishGame () {
-    console.log('comming soon...')
+    log('comming soon...')
   }
 
   async _uploadGame (data) {
-    console.log(data.ethAddress.toLowerCase() === this._gameUploadData.bankrollerAddress.toLowerCase(), this._gameUploadData.bankrollerAddress)
     if (data.ethAddress.toLowerCase() === this._gameUploadData.bankrollerAddress.toLowerCase()) {
       try {
         let gameFiles = []
@@ -107,21 +121,21 @@ module.exports = class Deployer {
             .filter(fileName => (fileNameTemplate.test(fileName)) && fileName)
             .map(fileName => {
               return {
-                fileName: fileName,
+                fileName,
                 fileData: fs.readFileSync(path.join(targetGamePath, fileName), 'utf-8')
               }
             })
         }
-          
-        const bankrollerInstance = await this._provider.getRemoteInterface(data.apiRoomAddress)
+
+        const bankrollerInstance: any = await this._provider.getRemoteInterface(data.apiRoomAddress)
         const uploadGame = await bankrollerInstance.uploadGame({
           name: this._gameUploadData.gameName,
           files: gameFiles,
           reload: true
         })
-  
+
         if (uploadGame.status === 'ok') {
-          console.log('Upload game success')
+          log('Upload game success')
           Utils.exitProgram(process.pid, false, 0)
         }
       } catch (error) {

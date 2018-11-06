@@ -1,14 +1,29 @@
-const fs = require('fs')
-const path = require('path')
-const DApp = require('./DApp')
-const chalk = require('chalk')
-const Utils = require('./Utils')
-const { spawn } = require('child_process')
-const inquirer = require('inquirer')
-const download = require('download')
+import fs from 'fs'
+import path from 'path'
+import DApp from './DApp'
+import chalk from 'chalk'
+import debug from 'debug'
+import * as Utils from './Utils'
+import { spawn } from 'child_process'
+import program from 'commander'
+import inquirer from 'inquirer'
+import download from 'download'
+import { DAppInstance } from './interfaces/IDApp'
+import { CLIParams, CLIInstanceInterface } from './interfaces/ICLIInstance'
+import { CLIConfigInterface, QuestionInterface } from './interfaces/ICLIConfig'
 
-module.exports = class CLIInstance {
-  constructor (params) {
+const log = debug('dc-cli')
+
+export default class CLIInstance implements CLIInstanceInterface {
+  private _params: CLIParams
+  private _config: CLIConfigInterface
+  private _prompt: inquirer
+  private _nodeStart: string
+  private _getQuestion: (name: string) => QuestionInterface
+
+  DApp: DAppInstance
+
+  constructor (params: CLIParams) {
     this._params = params
     this._config = this._params.config
     this._prompt = inquirer.createPromptModule()
@@ -23,7 +38,7 @@ module.exports = class CLIInstance {
     })
   }
 
-  async viewMenu () {
+  async viewMenu (): Promise<void> {
     /**
      * Generate menu with commands
      * if env not equal dc-gamesample then
@@ -35,35 +50,33 @@ module.exports = class CLIInstance {
 
     /** Delete color string and start bin file with command */
     const commandWithoutColor = commandSelected.replace(this._config.ASCIIColor, '')
-    spawn(`${Utils.sudo()} ${this._nodeStart} ${commandWithoutColor}`, {
+    spawn(`${Utils.sudo()} ${this._nodeStart} ${commandWithoutColor}`, [], {
       cwd: process.cwd(),
       stdio: 'inherit',
       shell: true
     })
   }
 
-  async viewTemplateList () {
+  async viewTemplateList (): Promise<void> {
     try {
-      console.log(1)
       const updateChecked = await Utils.checkLatestVersion()
-
-      if (updateChecked) {
-        console.log(chalk.yellow('Templates list:'))
-
-        this._config.templates
-          .forEach(template => {
-            console.log('')
-            console.log(`
-              ${chalk.yellow('★ ')} ${chalk.blue(template.name)} - ${template.descript} ${chalk.red(template.doc)}
-            `)
-          })
-      }
+      log(chalk.yellow('Templates list:'))
+      this._config.templates
+        .forEach(template => {
+          log(`\n
+            ${chalk.yellow('★ ')} ${chalk.blue(template.name)} - ${template.descript} ${chalk.red(template.doc)}
+          `)
+        })
     } catch (error) {
       throw error
     }
   }
 
-  async createProject (template, directory, options) {
+  async createProject (
+    template: string,
+    directory: string,
+    options: program.Command
+  ): Promise<void> {
     await Utils.checkLatestVersion()
 
     if (typeof template === 'undefined') {
@@ -87,9 +100,11 @@ module.exports = class CLIInstance {
 
     try {
       const targetDirectory = path.join(process.cwd(), `${directory}`)
-      const packageManager = (useYarn) ? 'yarn' : 'npm';
+      const packageManager = (useYarn) ? 'yarn' : 'npm'
 
-      (!fs.existsSync(targetDirectory)) && fs.mkdirSync(targetDirectory)
+      if (!fs.existsSync(targetDirectory)) {
+        fs.mkdirSync(targetDirectory)
+      }
 
       await this._downloadProject(template, targetDirectory)
       await this._installProject(packageManager, targetDirectory)
@@ -98,7 +113,10 @@ module.exports = class CLIInstance {
     }
   }
 
-  async _downloadProject (templateName, targetDirectory) {
+  async _downloadProject (
+    templateName: string,
+    targetDirectory: string
+  ): Promise<boolean> {
     const readTargetDirectory = fs.readdirSync(targetDirectory)
     if (readTargetDirectory.length !== 0) {
       throw new Error('Directory is not empty')
@@ -113,17 +131,20 @@ module.exports = class CLIInstance {
       })
 
     if (downloadData) {
-      console.log('Download sample success')
+      log('Download sample success')
       return true
     }
   }
 
-  async _installProject (packageManager, targetDirectory) {
+  async _installProject (
+    packageManager: string,
+    targetDirectory: string
+  ): Promise<boolean> {
     const generateCommand = `${packageManager} install`
     const installProject = await Utils.startCLICommand(generateCommand, targetDirectory)
 
     if (installProject.status === 'success') {
-      console.log('Install sample success')
+      log('Install sample success')
       return true
     }
   }

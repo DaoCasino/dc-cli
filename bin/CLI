@@ -4,5 +4,8 @@
 // Provide a title to the process in `ps`.
 // Due to an obscure Mac bug, do not start this title with any symbol.
 process.title = 'dc-cli'
+process.env.DEBUG = 'dc-cli'
+process.env.DEBUG_COLORS = false
+process.env.DEBUG_HIDE_DATE = true
 
-require('../src/commands/index')
+require('../lib/commands/index')

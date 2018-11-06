@@ -1,39 +1,48 @@
-const chalk = require('chalk')
-const Utils = require('../Utils')
-const program = require('commander')
-const _config = require('../config/config')
-const CLIInstance = require('../')
-const getQuestion = require('../config/questions')
+import chalk from 'chalk'
+import debug from 'debug'
+import config from '../config/config'
+import program from 'commander'
+import CLIInstance from '../index'
+import getQuestion from '../config/questions'
+import { CommandInterface } from '../interfaces/ICLIConfig'
+import * as Utils from '../Utils'
 
 const commands = {}
-const CLI = new CLIInstance({ config: _config, getQuestion: getQuestion })
-_config.commands.forEach(command => { commands[command.name] = command })
+const log = debug('dc-cli')
+const CLI = new CLIInstance({ config, getQuestion })
+config.commands.forEach(command => { commands[command.name] = command })
 
-function run () {
+function run (): void {
+  const programArgs: string[] = process.argv.slice(2)
+  let targetCommand: CommandInterface | null = null
+  for (const command in commands) {
+    if (commands[command].name === programArgs[0]) {
+      targetCommand = commands[command]
+    }
+  }
+  
   /**
    * If not enviroment and command needed env
    * then output error log and exit
    */
-  const programArgs = process.argv.slice(2)
-  const targetCommand = _config.commands
-    .find(command => (command.name === programArgs[0]) && command)
-
   if (
     (!programArgs.includes('-f') && !programArgs.includes('--force')) &&
     (!Utils.checkENV() && targetCommand && targetCommand.env)
   ) {
-    Utils.exitProgram(
-      process.pid,
-      chalk.red('\nError cannot created project please run dc-cli create and try again'),
-      0
+    const error = new Error(
+      chalk.red('\nError cannot created project please run dc-cli create and try again\n')
     )
+
+    Utils.exitProgram(process.pid, error, 0)
   }
 
   /** Parse command line arguments */
   program.parse(process.argv)
   program.cli = true
   /** If arguments not exist then view main menu cli */
-  if (program.args.length === 0) CLI.viewMenu(program.args)
+  if (program.args.length === 0) {
+    CLI.viewMenu()
+  }
 }
 
 /**
@@ -41,10 +50,12 @@ function run () {
  * if argument command not exists in cli
  * commands then view main menu cli
  */
-program.on('command:*', () => CLI.viewMenu(program.args))
+program.on('command:*', () => CLI.viewMenu())
 
+/* tslint:disable:no-string-literal */
+/* tslint:disable:no-var-requires */
 program
-  .version(`CLI version: ${chalk.red(require(_config.packageJSON).version)}`)
+  .version(`CLI version: ${chalk.red(require(config.packageJSON).version)}`)
   .usage('<command> [options]')
   .description(chalk.green('CLI for light development with DC ENV'))
 
@@ -60,7 +71,7 @@ program
   .option('-y, --yarn', 'Use yarn package manager for install')
   .action((template, directory, command) => CLI.createProject(template, directory, command))
   .on('--help', () => {
-    console.log(`
+    log(`
       Template run:
 
         dc-cli create ${chalk.cyan('<template-name> <project-name> [options]')}
@@ -91,9 +102,9 @@ program
   .option('-b, --background', 'Start bankroller in background (pm2)')
   .option('-p, --privatekey <privatekey>', 'Input private key for start bankroller in needed network')
   .option('-n, --network <network>', 'Start bankroller in target blockchain network')
-  .action(async command => await CLI.DApp.startBankrollerWithNetwork(command))
+  .action(command => CLI.DApp.startBankrollerWithNetwork(command))
   .on('--help', () => {
-    console.log(`
+    log(`
       Template run:
 
         dc-cli bankup ${chalk.cyan('[options]')}
@@ -113,7 +124,7 @@ program
   .description(`${chalk.green(commands['stop'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
   .option('-f, --force', 'Force run command not depend enviroment')
-  .action(command => CLI.DApp.stop(command))
+  .action(() => CLI.DApp.stop())
 
 program
   .command('logs')
@@ -144,7 +155,7 @@ program
   .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.uploadGameToBankroller(command))
   .on('--help', () => {
-    console.log(`
+    log(`
       Template run:
 
         dc-cli upload ${chalk.cyan('[options]')}
@@ -164,13 +175,13 @@ program
   .description(`${chalk.green(commands['deploy'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
   .option('-f, --force', 'Force run command not depend enviroment')
-  .action(command => CLI.DApp.deployGameToIPFS(command))
+  .action(() => CLI.DApp.deployGameToIPFS())
 
 program
   .command('publish')
   .description(`${chalk.green(commands['publish'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
   .option('-f, --force', 'Force run command not depend enviroment')
-  .action(command => CLI.DApp.publishGame(command))
+  .action(() => CLI.DApp.publishGame())
 
 run()

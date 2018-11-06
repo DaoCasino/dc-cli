@@ -1,7 +1,7 @@
-const fs   = require('fs')
-const path = require('path')
+import * as path from 'path'
+import { CLIConfigInterface } from '../interfaces/ICLIConfig'
 
-module.exports = {
+const config: CLIConfigInterface = {
   commands: [
     { name: 'list', description: '       View available official templates', env: false },
     { name: 'create', description: '     Generate a new project from a template', env: false },
@@ -15,12 +15,12 @@ module.exports = {
     { name: 'publish', description: '    Send game to Dao.Casino marketplace', env: true }
   ],
 
-  options: [
-    '-V', '-h', '-s', '-c', '-i', '-r', '-d', '-f', '-b', '-l',
-    '--help', '--clone', '--server', '--version', '--ipfs',
-    '--ropsten', '--development', '--firebase', '--local', '--rpc',
-    '--bankroller', '--no-contract', '--no-dapp'
-  ],
+  // options: [
+  //   '-V', '-h', '-s', '-c', '-i', '-r', '-d', '-f', '-b', '-l',
+  //   '--help', '--clone', '--server', '--version', '--ipfs',
+  //   '--ropsten', '--development', '--firebase', '--local', '--rpc',
+  //   '--bankroller', '--no-contract', '--no-dapp'
+  // ],
 
   templates: [
     {
@@ -39,3 +39,5 @@ module.exports = {
   startOptions    : path.join(__dirname, './startOptions.json'),
   defaultMnemonic : 'glass method front super auto hole know grace select prevent custom fancy'
 }
+
+export default config

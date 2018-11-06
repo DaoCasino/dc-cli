@@ -1,6 +1,6 @@
 {
   "name": "dc-cli",
-  "version": "0.2.9",
+  "version": "0.2.8",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
   "preferGlobal": true,
@@ -35,7 +35,11 @@
   "scripts": {
     "check_update": "ncu bankroller-core dc-protocol dc-messaging -a",
     "publish:npm": "npm run check_update; npm publish --access=public",
-    
+
+    "build": "npm-run-all typescript",
+    "build:ts": "npm-run-all typescript",
+    "typescript": "tsc --build",
+
     "lint": "eslint ./lib ./bin",
     "test": "echo 'test'",
     
@@ -59,6 +63,7 @@
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
     "dc-protocol": "^0.1.10",
+    "debug": "^4.1.0",
     "download": "^7.1.0",
     "inquirer": "^6.0.0",
     "ncp": "^2.0.0",
