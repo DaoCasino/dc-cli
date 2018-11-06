@@ -7,12 +7,12 @@ import {
 import * as fs from 'fs'
 import * as path from 'path'
 import * as Utils from './Utils'
-import debug from 'debug'
 import program from 'commander'
+import { Logger } from 'dc-logging'
 import { PingService } from 'bankroller-core/lib/dapps/PingService'
 import { IpfsTransportProvider } from 'dc-messaging'
 
-const log = debug('dc-cli')
+const log = new Logger('Deployer')
 
 export default class Deployer implements DeployerInstance {
   protected _params: InstanceParams
@@ -53,7 +53,7 @@ export default class Deployer implements DeployerInstance {
       )
 
       if (contractMigrate.status === 'success') {
-        log(`Contracts deploy to ${blockchainNetwork} successed`)
+        log.info(`Contracts deploy to ${blockchainNetwork} successed`)
         return contractMigrate.status
       } else {
         throw new Error('Contracts is not migrate to the network')
@@ -102,11 +102,11 @@ export default class Deployer implements DeployerInstance {
   }
 
   async deployGameToIPFS () {
-    log('comming soon...')
+    log.info('comming soon...')
   }
 
   async publishGame () {
-    log('comming soon...')
+    log.info('comming soon...')
   }
 
   async _uploadGame (data) {
@@ -135,7 +135,7 @@ export default class Deployer implements DeployerInstance {
         })
 
         if (uploadGame.status === 'ok') {
-          log('Upload game success')
+          log.info('Upload game success')
           Utils.exitProgram(process.pid, false, 0)
         }
       } catch (error) {

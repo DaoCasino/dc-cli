@@ -7,14 +7,14 @@ import {
 import path from 'path'
 import chalk from 'chalk'
 import * as Utils from './Utils'
-import debug from 'debug'
 import config from './config/config'
 import Deployer from './Deployer'
 import program from 'commander'
 import startOptionsConfig from './config/startOptions.json'
+import { Logger } from 'dc-logging'
 import { CLIConfigInterface } from './interfaces/ICLIConfig'
 
-const log = debug('dc-cli')
+const log = new Logger('DApp')
 
 export default class DApp extends Deployer implements DAppInstance {
   protected _params: InstanceParams
@@ -54,7 +54,7 @@ export default class DApp extends Deployer implements DAppInstance {
       ? await Utils.deletePM2Service('all')
       : await Utils.startCLICommand('docker-compose down', path.join(__dirname, '../'))
 
-    log(chalk.green('\nEnviroment stoped\n'))
+    log.info(chalk.green('\nEnviroment stoped\n'))
   }
 
   async viewLogs (options): Promise<void> {
@@ -121,7 +121,7 @@ export default class DApp extends Deployer implements DAppInstance {
             blockchainNetwork
           })
 
-          log(`\n
+          log.info(`\n
           Bankroller start in background with pm2
           for show logs bankroller please run ${chalk.green('dc-cli logs --bankroller')}
           or ${chalk.green(`pm2 logs bankroller_core:${blockchainNetwork}`)}\n
@@ -177,7 +177,7 @@ export default class DApp extends Deployer implements DAppInstance {
   async _startDockerLocalENV (
     startOptions: StartOptions = startOptionsConfig
   ): Promise<void> {
-    log('comming soon...')
+    log.info('comming soon...')
     Utils.exitProgram(process.pid, false, 0)
     // process.env.ACCOUNT_PRIVATE_KEY = _config.bankrollerLocalPrivateKey
     // process.env.CONTRACTS_PATH = path.join(process.cwd(), 'dapp/contracts')

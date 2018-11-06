@@ -2,17 +2,17 @@ import fs from 'fs'
 import path from 'path'
 import DApp from './DApp'
 import chalk from 'chalk'
-import debug from 'debug'
-import * as Utils from './Utils'
-import { spawn } from 'child_process'
 import program from 'commander'
 import inquirer from 'inquirer'
 import download from 'download'
+import * as Utils from './Utils'
+import { Logger } from 'dc-logging'
+import { spawn } from 'child_process'
 import { DAppInstance } from './interfaces/IDApp'
 import { CLIParams, CLIInstanceInterface } from './interfaces/ICLIInstance'
 import { CLIConfigInterface, QuestionInterface } from './interfaces/ICLIConfig'
 
-const log = debug('dc-cli')
+const log = new Logger('CLIInstance')
 
 export default class CLIInstance implements CLIInstanceInterface {
   private _params: CLIParams
@@ -44,12 +44,12 @@ export default class CLIInstance implements CLIInstanceInterface {
      * if env not equal dc-gamesample then
      * all command besides create and list not used
      */
-    const commandSelected = (await this._prompt(
+    const commandSelected: string = (await this._prompt(
       this._getQuestion('viewMenu')
     )).command.split(' ')[0]
 
     /** Delete color string and start bin file with command */
-    const commandWithoutColor = commandSelected.replace(this._config.ASCIIColor, '')
+    const commandWithoutColor: string = commandSelected.replace(this._config.ASCIIColor, '')
     spawn(`${Utils.sudo()} ${this._nodeStart} ${commandWithoutColor}`, [], {
       cwd: process.cwd(),
       stdio: 'inherit',
@@ -59,14 +59,14 @@ export default class CLIInstance implements CLIInstanceInterface {
 
   async viewTemplateList (): Promise<void> {
     try {
-      const updateChecked = await Utils.checkLatestVersion()
-      log(chalk.yellow('Templates list:'))
-      this._config.templates
-        .forEach(template => {
-          log(`\n
-            ${chalk.yellow('★ ')} ${chalk.blue(template.name)} - ${template.descript} ${chalk.red(template.doc)}
-          `)
-        })
+      await Utils.checkLatestVersion()
+      
+      log.info(chalk.yellow('Templates list:'))
+      this._config.templates.forEach(template => {
+        log.info(`
+          \r${chalk.yellow('★')} ${chalk.blue(template.name)} - ${template.descript} ${chalk.red(template.doc)}
+        `)
+      })
     } catch (error) {
       throw error
     }
@@ -131,7 +131,7 @@ export default class CLIInstance implements CLIInstanceInterface {
       })
 
     if (downloadData) {
-      log('Download sample success')
+      log.info('Download sample success')
       return true
     }
   }
@@ -144,7 +144,7 @@ export default class CLIInstance implements CLIInstanceInterface {
     const installProject = await Utils.startCLICommand(generateCommand, targetDirectory)
 
     if (installProject.status === 'success') {
-      log('Install sample success')
+      log.info('Install sample success')
       return true
     }
   }

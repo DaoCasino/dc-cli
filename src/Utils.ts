@@ -4,14 +4,13 @@ import * as path from 'path'
 import { ncp } from 'ncp'
 import { machineIdSync } from 'node-machine-id'
 import chalk from 'chalk'
-import debug from 'debug'
+import { Logger } from 'dc-logging'
 import { spawn } from 'child_process'
 import config from './config/config'
 import npmCheck from 'update-check'
 import startOptionsConfig from './config/startOptions.json'
 
-const log = debug('dc-cli')
-const errorLog = debug('dc-cli:err')
+const log = new Logger('Utils')
 
 export const sudo = (): string => (typeof process.env.SUDO_UID !== 'undefined') ? 'sudo -E' : ''
 export const checkENV = (): boolean => !(!fs.existsSync(config.projectsENV))
@@ -64,14 +63,14 @@ export async function checkLatestVersion (): Promise<boolean | null> {
       const targetVersion = require(config.packageJSON).version
 
       if (targetVersion < latestVersion) {
-        log(`
-          ${chalk.bgRgb(255, 194, 102).gray('  UPDATE AVALABLE  ')}
+        log.info(`
+          \r${chalk.bgRgb(255, 194, 102).gray('  UPDATE AVALABLE  ')}
           
-          Please use ${chalk.green('npm i -g dc-cli@latest')},
-          to update for lasst version dc-cli
+          \rPlease use ${chalk.green('npm i -g dc-cli@latest')},
+          \rto update for lasst version dc-cli
   
-          Last version: ${chalk.green(latestVersion)}
-          Your version: ${chalk.red(targetVersion)}
+          \rLast version: ${chalk.green(latestVersion)}
+          \rYour version: ${chalk.red(targetVersion)}
         `)
       }
 
@@ -90,7 +89,7 @@ export function exitProgram (
   exitCode: number = 0
 ): void {
   if (error) {
-    errorLog(error)
+    log.error(error)
   }
 
   process.exitCode = (exitCode !== null) ? exitCode : 1
@@ -107,7 +106,7 @@ export function addExitListener (
           callback()
         }
         
-        log('!Procces out')
+        log.info('!Procces out')
         exitProgram(process.ppid, false, 0)
       })
     })

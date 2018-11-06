@@ -1,14 +1,14 @@
 import chalk from 'chalk'
-import debug from 'debug'
 import config from '../config/config'
 import program from 'commander'
 import CLIInstance from '../index'
 import getQuestion from '../config/questions'
-import { CommandInterface } from '../interfaces/ICLIConfig'
 import * as Utils from '../Utils'
+import { Logger } from 'dc-logging'
+import { CommandInterface } from '../interfaces/ICLIConfig'
 
 const commands = {}
-const log = debug('dc-cli')
+const log = new Logger('CLI')
 const CLI = new CLIInstance({ config, getQuestion })
 config.commands.forEach(command => { commands[command.name] = command })
 
@@ -71,7 +71,7 @@ program
   .option('-y, --yarn', 'Use yarn package manager for install')
   .action((template, directory, command) => CLI.createProject(template, directory, command))
   .on('--help', () => {
-    log(`
+    log.info(`
       Template run:
 
         dc-cli create ${chalk.cyan('<template-name> <project-name> [options]')}
@@ -104,7 +104,7 @@ program
   .option('-n, --network <network>', 'Start bankroller in target blockchain network')
   .action(command => CLI.DApp.startBankrollerWithNetwork(command))
   .on('--help', () => {
-    log(`
+    log.info(`
       Template run:
 
         dc-cli bankup ${chalk.cyan('[options]')}
@@ -155,7 +155,7 @@ program
   .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.uploadGameToBankroller(command))
   .on('--help', () => {
-    log(`
+    log.info(`
       Template run:
 
         dc-cli upload ${chalk.cyan('[options]')}
