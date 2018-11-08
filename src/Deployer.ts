@@ -4,10 +4,10 @@ import {
   UploadGameData,
   MigrationParams
 } from './interfaces/IDApp'
-import * as fs from 'fs'
-import * as path from 'path'
-import * as Utils from './Utils'
+import fs from 'fs'
+import path from 'path'
 import program from 'commander'
+import * as Utils from './Utils'
 import { Logger } from 'dc-logging'
 import { PingService } from 'bankroller-core/lib/dapps/PingService'
 import { IpfsTransportProvider } from 'dc-messaging'

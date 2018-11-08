@@ -1,4 +1,4 @@
-import * as path from 'path'
+import path from 'path'
 import { CLIConfigInterface } from '../interfaces/ICLIConfig'
 
 const config: CLIConfigInterface = {
@@ -14,13 +14,6 @@ const config: CLIConfigInterface = {
     { name: 'upload', description: '     Upload game to the bankroller', env: true },
     { name: 'publish', description: '    Send game to Dao.Casino marketplace', env: true }
   ],
-
-  // options: [
-  //   '-V', '-h', '-s', '-c', '-i', '-r', '-d', '-f', '-b', '-l',
-  //   '--help', '--clone', '--server', '--version', '--ipfs',
-  //   '--ropsten', '--development', '--firebase', '--local', '--rpc',
-  //   '--bankroller', '--no-contract', '--no-dapp'
-  // ],
 
   templates: [
     {

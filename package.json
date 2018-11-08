@@ -47,7 +47,7 @@
     "start:bankroller_core:ropsten": "bankroller-core start $ACCOUNT_PRIVATE_KEY -r",
     "start:bankroller_core:rinkeby": "bankroller-core start $ACCOUNT_PRIVATE_KEY -n", 
     
-    "start:dc_protocol:testrpc": "dc-protocol start",
+    "start:dc_protocol:testrpc": "c-protocol start",
     
     "migrate:local": "dc-protocol migrate --network local",
     "migrate:ropsten": "dc-protocol migrate --network ropsten",
@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "bankroller-core": "^0.1.9",
+    "bluebird": "^3.5.3",
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
     "dc-protocol": "^0.1.10",
@@ -69,7 +70,7 @@
     "dc-messaging": "^0.1.7",
     "dc-logging": "^0.1.7",
     "node-machine-id": "^1.1.10",
-    "pm2": "^3.0.4",
+    "pm2": "^3.0.3",
     "truffle": "^5.0.0-beta.0",
     "truffle-hdwallet-provider": "^1.0.0-web3one.0",
     "update-check": "^1.5.2"

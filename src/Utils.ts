@@ -1,16 +1,20 @@
-import * as fs from 'fs'
-import * as pm2 from 'pm2'
-import * as path from 'path'
-import { ncp } from 'ncp'
-import { machineIdSync } from 'node-machine-id'
+import fs from 'fs'
+import path from 'path'
+import pm2 from 'pm2'
+import ncpApi from 'ncp'
 import chalk from 'chalk'
-import { Logger } from 'dc-logging'
-import { spawn } from 'child_process'
 import config from './config/config'
 import npmCheck from 'update-check'
 import startOptionsConfig from './config/startOptions.json'
+import { Logger } from 'dc-logging'
+import { spawn } from 'child_process'
+import { Promise } from 'bluebird'
+import { machineIdSync } from 'node-machine-id'
+import { ServiceConfig } from './interfaces/IDApp'
 
 const log = new Logger('Utils')
+const PromisePm2Api = Promise.promisifyAll(pm2)
+const promiseNcpApi = Promise.promisify(ncpApi)
 
 export const sudo = (): string => (typeof process.env.SUDO_UID !== 'undefined') ? 'sudo -E' : ''
 export const checkENV = (): boolean => !(!fs.existsSync(config.projectsENV))
@@ -112,46 +116,54 @@ export function addExitListener (
     })
 }
 
-export function startPM2Service (serviceConfig) {
-  return new Promise((resolve, reject) => {
-    pm2.connect(connectError => {
-      if (connectError) reject(connectError)
-
-      pm2.start(serviceConfig, (startError, apps) => {
-        if (startError) reject(startError)
-        resolve(apps)
-      })
-    })
-  })
-}
-
-export async function checkPM2Service (processName) {
+export async function startPM2Service (
+  serviceConfig: ServiceConfig
+): Promise<string> {
   try {
+    Object.keys(PromisePm2Api).forEach(el => {
+      console.log(el)
+    })
+    await PromisePm2Api.connectAsync()
+    await PromisePm2Api.startAsync(serviceConfig)
   } catch (error) {
     throw error
   }
 }
 
-export function deletePM2Service (name) {
-  return new Promise((resolve, reject) => {
-    pm2.delete(name, async deleteError => {
-      if (deleteError) reject(deleteError)
-      await pm2.disconnect()
-      resolve(name)
-    })
-  })
+export async function checkPM2Service (processName: string) {
+  try {
+    const serviceList = await PromisePm2Api.describeAsync(processName)
+    for (const service of serviceList) {
+      const { status } = service.pm2_env
+      if (status !== 'online') {
+        throw new Error(`Process with name ${processName} not started`)
+      }
+    }
+  } catch (error) {
+    throw error
+  }
 }
 
-export function recursiveCopyDirectory (targetPath) {
-  return new Promise((resolve, reject) => {
-    ncp(
+export async function deletePM2Service (
+  name: string
+): Promise<string> {
+  try {
+    await PromisePm2Api.deleteAsync(name)
+    await PromisePm2Api.disconnectAsync()
+
+    return name
+  } catch (error) {
+    throw error
+  }
+}
+
+export async function recursiveCopyDirectory (targetPath) {
+  try {
+    await promiseNcpApi.ncpAsync(
       path.join(__dirname, '../_env/protocol'),
-      targetPath,
-      err => (err) ? reject(err) : resolve(targetPath)
+      targetPath
     )
-  })
-}
-
-export function callbackToPromise () {
-
+  } catch (error) {
+    throw error
+  }
 }

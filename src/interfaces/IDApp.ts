@@ -38,6 +38,17 @@ export interface StartBankrollerParams {
   network: string
 }
 
+export interface ServiceConfig {
+  cwd: string
+  name: string
+  exec_mode: string
+  env?: any
+  script: string
+  args: string
+  autorestart?: boolean
+  watch?: boolean
+}
+
 export interface DeployerInstance {
   migrateContract: (options: program.Command | MigrationParams) => Promise<string>
   uploadGameToBankroller: (options: program.Command) => Promise<void>
