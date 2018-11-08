@@ -1,0 +1,21 @@
+version: "0.1"
+
+services:
+
+  bankroller_core:
+    container_name: bankroller_core
+    labels:
+      - "Bankroller instance"
+    image: altvnv/bankroller-core:development-latest
+    environment:
+      - ACCOUNT_PRIVATE_KEY=${ACCOUNT_PRIVATE_KEY}
+
+  dc_protocol:
+    container_name: dc_protocol
+    labels:
+      - "testrpc with dao casino protocol contracts"
+    image: daocasino/protocol:latest
+    ports:
+      - 8545:8545
+    volumes:
+     - ${CONTRACTS_PATH}:/deploy_protocol/contracts

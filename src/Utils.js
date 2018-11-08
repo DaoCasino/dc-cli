@@ -7,14 +7,33 @@ const chalk = require('chalk')
 const { spawn } = require('child_process')
 const _config = require('./config/config')
 const npmCheck = require('update-check')
+const startOptionsConfig = require(_config.startOptions)
 
 const sudo = () => (typeof process.env.SUDO_UID !== 'undefined') ? 'sudo -E' : ''
 const checkENV = () => !(!fs.existsSync(_config.projectsENV))
 const UUIDGenerate = () => UUID.machineIdSync({ original: true })
 
-function startCLICommand (command, target = process.cwd()) {
+function changeStartOptionsJSON (options) {
+  if (
+    startOptionsConfig.useDocker !== options.useDocker ||
+    startOptionsConfig.blockchainNetwork !== options.blockchainNetwork
+  ) {
+    const openFile = fs.openSync(_config.startOptions, 'w')
+    fs.writeSync(openFile, JSON.stringify(options, null, ' '), 0, 'utf-8')
+    fs.closeSync(openFile)
+  }
+}
+
+function startCLICommand (command, target) {
   return new Promise((resolve, reject) => {
-    const startChildProcess = spawn(command, {shell: true, stdio: 'inherit', cwd: target})
+    const startChildProcess = spawn(
+      command,
+      {
+        shell: true,
+        stdio: 'inherit',
+        cwd: target
+      }
+    )
 
     startChildProcess.on('error', error => reject(error))
     startChildProcess.on('exit', code => {
@@ -27,42 +46,30 @@ function startCLICommand (command, target = process.cwd()) {
 
 async function checkLatestVersion () {
   try {
-    const latestVersion = (await npmCheck(require(_config.packageJSON))).latest
-    const targetVersion = require(_config.packageJSON).version
+    const checkVersion = await npmCheck(require(_config.packageJSON))
+    if (checkVersion !== null) {
+      const latestVersion = checkVersion.latest
+      const targetVersion = require(_config.packageJSON).version
 
-    if (targetVersion < latestVersion) {
-      console.log('')
-      console.log(`${chalk.bgRgb(255, 194, 102).gray('  UPDATE AVALABLE  ')}`)
-      console.log(`
-        Please use ${chalk.green('npm i -g dc-cli@latest')},
-        to update for lasst version dc-cli
-
-        Last version: ${chalk.green(latestVersion)}
-        Your version: ${chalk.red(targetVersion)}
-      `)
-      console.log('')
+      if (targetVersion < latestVersion) {
+        console.log('')
+        console.log(`${chalk.bgRgb(255, 194, 102).gray('  UPDATE AVALABLE  ')}`)
+        console.log(`
+          Please use ${chalk.green('npm i -g dc-cli@latest')},
+          to update for lasst version dc-cli
+  
+          Last version: ${chalk.green(latestVersion)}
+          Your version: ${chalk.red(targetVersion)}
+        `)
+        console.log('')
+      }
+      return true
     }
 
     return true
   } catch (error) {
     throw error
   }
-}
-
-function checkGlobalDepend () {
-  const log = []
-  const checkDepends = spawn('docker -v && docker-compose -v; node -v', {shell: true})
-  checkDepends.stdout.on('data', data => log.push(`${data}`))
-  checkDepends.stderr.on('data', errData => log.push(`${chalk.bgRed.blac(' Error:TypeERRDATA ')} ${chalk.red(errData)}`))
-
-  checkDepends
-    .on('error', err => console.error(err))
-    .on('exit', code => {
-      if (code !== 0) {
-        console.error(`${chalk.bgRed.black(' Error:TypeDependsCHECK ')} ${chalk.red('docker or docker-compose not installed please install of doc [https://docs.docker.com/toolbox/]')}`)
-        exitProgram(process.pid)
-      }
-    })
 }
 
 function exitProgram (pid, error, exitCode) {
@@ -99,7 +106,7 @@ function startPM2Service (config) {
 
 function deletePM2Service (name) {
   return new Promise((resolve, reject) => {
-    pm2.delete('bankroller', async err => {
+    pm2.delete(name, async err => {
       (err) && reject(new Error(err))
 
       await pm2.disconnect()
@@ -127,7 +134,7 @@ module.exports = {
   addExitListener,
   startPM2Service,
   deletePM2Service,
-  checkGlobalDepend,
   checkLatestVersion,
+  changeStartOptionsJSON,
   recursiveCopyDirectory
 }
