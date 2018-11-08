@@ -3,16 +3,16 @@ const path = require('path')
 
 module.exports = {
   commands: [
-    { name: 'list', description: '   View available official templates', env: false },
-    { name: 'create', description: ' Generate a new project from a template', env: false },
-    { name: 'bankup', description: ' Start bankroller in target network', env: false },
-    { name: 'migrate', description: 'migrate contract to the network', env: false },
-    { name: 'start', description: '  Up env for development dapp', env: true },
-    { name: 'stop', description: '   Down env for development dapp', env: true },
-    { name: 'logs', description: '   Output logs SDK with network', env: true },
-    { name: 'deploy', description: ' Deploing dapp', env: true },
-    { name: 'upload', description: ' Upload game to the bankroller', env: true },
-    { name: 'publish', description: 'Send game to Dao.Casino marketplace', env: true }
+    { name: 'list', description: '       View available official templates', env: false },
+    { name: 'create', description: '     Generate a new project from a template', env: false },
+    { name: 'bankrollup', description: ' Start bankroller in target network', env: false },
+    { name: 'migrate', description: '    migrate contract to the network', env: false },
+    { name: 'start', description: '      Up env for development dapp', env: true },
+    { name: 'stop', description: '       Down env for development dapp', env: true },
+    { name: 'logs', description: '       Output logs SDK with network', env: true },
+    { name: 'deploy', description: '     Deploing dapp', env: true },
+    { name: 'upload', description: '     Upload game to the bankroller', env: true },
+    { name: 'publish', description: '    Send game to Dao.Casino marketplace', env: true }
   ],
 
   options: [

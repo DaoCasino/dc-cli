@@ -24,14 +24,16 @@ function changeStartOptionsJSON (options) {
   }
 }
 
-function startCLICommand (command, target) {
+function startCLICommand (command, target, userEnv = {}) {
   return new Promise((resolve, reject) => {
+    const asignEnv = { ...process.env, ...userEnv }
     const startChildProcess = spawn(
       command,
       {
         shell: true,
         stdio: 'inherit',
-        cwd: target
+        cwd: target,
+        env: asignEnv
       }
     )
 
@@ -72,17 +74,17 @@ async function checkLatestVersion () {
   }
 }
 
-function exitProgram (pid, error, exitCode) {
+function exitProgram (pid, error, exitCode = 1) {
   if (error) {
     console.error(error)
   }
 
-  process.exitCode = exitCode || 1
+  process.exitCode = (exitCode !== null) ? exitCode : 1
   process.kill(pid, 'SIGTERM')
 }
 
 function addExitListener (callback = false) {
-  ['SIGINT', 'SIGKILL', 'exit']
+  ['SIGINT', 'SIGKILL']
     .forEach(signal => {
       process.on(signal, () => {
         (callback) && callback()
