@@ -85,8 +85,8 @@ program
   .action(command => CLI.DApp.start(command))
 
 program
-  .command('bankup')
-  .description(`${chalk.green(commands['bankup'].description.trim())} `)
+  .command('bankrollup')
+  .description(`${chalk.green(commands['bankrollup'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
   .option('-b, --background', 'Start bankroller in background (pm2)')
   .option('-p, --privatekey <privatekey>', 'Input private key for start bankroller in needed network')
@@ -121,6 +121,7 @@ program
   .usage(`${chalk.red('[options]')}`)
   .option('-b, --bankroller', 'View bankroller logs')
   .option('-t, --testrpc', 'View testrpc logs')
+  .option('-d, --docker', 'Start docker logs')
   .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.viewLogs(command))
 
