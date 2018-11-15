@@ -1,4 +1,4 @@
 {
- "useDocker": false,
+ "docker": false,
  "blockchainNetwork": "local"
 }
