@@ -1,5 +1,4 @@
 import fs from 'fs'
-import path from 'path'
 import pm2 from 'pm2'
 import ncpApi from 'ncp'
 import chalk from 'chalk'
@@ -133,6 +132,7 @@ export async function startPM2Service (
 
 export async function connectToPM2Deamon(): Promise<void> {
   try {
+    Object.keys(PromisePm2Api).forEach(console.log)
     await PromisePm2Api.connectAsync()
     const pm2EventBus = await PromisePm2Api.launchBusAsync()
     pm2EventBus.on('log:exit', data => {

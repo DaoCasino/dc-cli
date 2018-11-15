@@ -109,9 +109,13 @@ export default class DApp extends Deployer implements DAppInstance {
           cwd: path.join(__dirname, '../'),
           name: 'bankroller_core',
           exec_mode: 'fork',
-          env: { 'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey },
-          script: 'npm',
-          args: `run start:bankroller_core:${blockchainNetwork}`
+          env: {
+            'DC_NETWORK': blockchainNetwork,
+            'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey,
+            // '': path.join,
+            'START_BANKROLLER': 'cli_pm2_start'
+          },
+          script: require.resolve('bankroller-core')
         })
 
         if (bankrollerStartinPM2) {

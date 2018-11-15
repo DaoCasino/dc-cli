@@ -44,7 +44,7 @@ export interface ServiceConfig {
   exec_mode: string
   env?: any
   script: string
-  args: string
+  args?: string
   autorestart?: boolean
   watch?: boolean
 }

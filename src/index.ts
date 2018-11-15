@@ -6,8 +6,8 @@ import program from 'commander'
 import inquirer from 'inquirer'
 import download from 'download'
 import * as Utils from './Utils'
-import { Logger } from 'dc-logging'
 import { spawn } from 'child_process'
+import { Logger } from 'dc-logging'
 import { DAppInstance } from './interfaces/IDApp'
 import { CLIParams, CLIInstanceInterface } from './interfaces/ICLIInstance'
 import { CLIConfigInterface, QuestionInterface } from './interfaces/ICLIConfig'
@@ -50,10 +50,10 @@ export default class CLIInstance implements CLIInstanceInterface {
 
     /** Delete color string and start bin file with command */
     const commandWithoutColor: string = commandSelected.replace(this._config.ASCIIColor, '')
-    spawn(`${Utils.sudo()} ${this._nodeStart} ${commandWithoutColor}`, [], {
+    spawn(`${Utils.sudo()} ${this._nodeStart} ${commandWithoutColor}`, [],{
       cwd: process.cwd(),
-      stdio: 'inherit',
-      shell: true
+      shell: true,
+      stdio: 'inherit'
     })
   }
 
@@ -78,25 +78,40 @@ export default class CLIInstance implements CLIInstanceInterface {
     options: program.Command
   ): Promise<void> {
     await Utils.checkLatestVersion()
-
-    if (typeof template === 'undefined') {
-      template = (await this._prompt(
-        this._getQuestion('templateSelect')
-      )).template
-    }
-
-    if (typeof directory === 'undefined') {
-      directory = (await this._prompt(
-        this._getQuestion('directoryInput')
-      )).directory
-    }
-
+    
     let useYarn = options.yarn
-    if (!useYarn) {
-      useYarn = (await this._prompt(
-        this._getQuestion('useYarn')
-      )).useYarn
+    switch (true) {
+      case typeof template === 'undefined':
+        template = (await this._prompt(
+          this._getQuestion('templateSelect')
+        )).template
+      case typeof directory === 'undefined':
+        directory = (await this._prompt(
+          this._getQuestion('directoryInput')
+        )).directory
+      case !useYarn:
+        useYarn = (await this._prompt(
+          this._getQuestion('useYarn')
+        )).useYarn
     }
+    // if (typeof template === 'undefined') {
+    //   template = (await this._prompt(
+    //     this._getQuestion('templateSelect')
+    //   )).template
+    // }
+
+    // if (typeof directory === 'undefined') {
+    //   directory = (await this._prompt(
+    //     this._getQuestion('directoryInput')
+    //   )).directory
+    // }
+
+    // let useYarn = options.yarn
+    // if (!useYarn) {
+    //   useYarn = (await this._prompt(
+    //     this._getQuestion('useYarn')
+    //   )).useYarn
+    // }
 
     try {
       const targetDirectory = path.join(process.cwd(), `${directory}`)

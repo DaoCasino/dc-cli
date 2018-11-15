@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import config from './config'
-import { QuestionInterface  } from '../interfaces/ICLIConfig'
 import * as Utils from '../Utils'
+import { QuestionInterface  } from '../interfaces/ICLIConfig'
 
 export default function getQuestion (name): QuestionInterface {
   const questions = {
