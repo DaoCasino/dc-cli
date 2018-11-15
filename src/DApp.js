@@ -92,6 +92,7 @@ module.exports = class DApp extends Deployer {
           name: 'bankroller_core',
           exec_mode: 'fork',
           env: { 'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey },
+          autorestart: false,
           script: 'npm',
           args: `run start:bankroller_core:${blockchainNetwork}`
         })
