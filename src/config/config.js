@@ -30,7 +30,7 @@ module.exports = {
     }
   ],
 
-  bankrollerLocalPrivateKey: '0x6923774b0d1a9281c67c2f13d20aa4d4ec6a87a3e31a1f0ae3887f505b03ba35', // '0x1882c2a6d0df1210d643f82f69d0bdfa0e2e1eaa963384826a4f24d5b5529e10',
+  bankrollerLocalPrivateKey: '0x8d5366123cb560bb606379f90a0bfd4769eecc0557f1b362dcae9012b548b1e5', // '0x1882c2a6d0df1210d643f82f69d0bdfa0e2e1eaa963384826a4f24d5b5529e10',
 
   isWin           : /^win/.test(process.platform),
   ASCIIColor      : /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
