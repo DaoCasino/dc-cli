@@ -6,8 +6,8 @@ import chalk from 'chalk'
 import config from './config/config'
 import npmCheck from 'update-check'
 import startOptionsConfig from './config/startOptions.json'
+import { exec } from 'child_process'
 import { Logger } from 'dc-logging'
-import { spawn } from 'child_process'
 import { Promise } from 'bluebird'
 import { machineIdSync } from 'node-machine-id'
 import { ServiceConfig } from './interfaces/IDApp'
@@ -40,18 +40,23 @@ export function startCLICommand (
 }> {
   return new Promise((resolve, reject) => {
     const asignEnv = { ...process.env, ...userEnv }
-    const startChildProcess = spawn(
-      command, [],
+    const startChildProcess = exec(
+      command,
       {
-        shell: true,
-        stdio: 'inherit',
         cwd: target,
         env: asignEnv
       }
     )
 
+    const printOut = data => log.info(data)
+    startChildProcess.stdout.on('data', printOut)
+    startChildProcess.stderr.on('data', printOut)
+
     startChildProcess.on('error', error => reject(error))
     startChildProcess.on('exit', code => {
+      startChildProcess.stdout.off('data', printOut)
+      startChildProcess.stderr.off('data', printOut);
+
       (code !== 0)
         ? reject(new Error(`child procces ${command} exit with code ${code}`))
         : resolve({ status: 'success' })
@@ -89,7 +94,7 @@ export async function checkLatestVersion (): Promise<boolean | null> {
 
 export function exitProgram (
   pid: number,
-  error: Error | boolean,
+  error: Error | string | boolean,
   exitCode: number = 0
 ): void {
   if (error) {
@@ -120,25 +125,19 @@ export async function startPM2Service (
   serviceConfig: ServiceConfig
 ): Promise<string> {
   try {
-    Object.keys(PromisePm2Api).forEach(el => {
-      console.log(el)
-    })
-    await PromisePm2Api.connectAsync()
     await PromisePm2Api.startAsync(serviceConfig)
   } catch (error) {
     throw error
   }
 }
 
-export async function checkPM2Service (processName: string) {
+export async function connectToPM2Deamon(): Promise<void> {
   try {
-    const serviceList = await PromisePm2Api.describeAsync(processName)
-    for (const service of serviceList) {
-      const { status } = service.pm2_env
-      if (status !== 'online') {
-        throw new Error(`Process with name ${processName} not started`)
-      }
-    }
+    await PromisePm2Api.connectAsync()
+    const pm2EventBus = await PromisePm2Api.launchBusAsync()
+    pm2EventBus.on('log:exit', data => {
+      log.info(data)
+    })
   } catch (error) {
     throw error
   }
@@ -150,20 +149,18 @@ export async function deletePM2Service (
   try {
     await PromisePm2Api.deleteAsync(name)
     await PromisePm2Api.disconnectAsync()
-
-    return name
   } catch (error) {
-    throw error
+    exitProgram(process.pid, chalk.red(`\n${error.message}`), 1)
   }
 }
 
-export async function recursiveCopyDirectory (targetPath) {
+export async function recursiveCopyDirectory (
+  targetInputPath: string,
+  targetOutputPath: string
+): Promise<void> {
   try {
-    await promiseNcpApi.ncpAsync(
-      path.join(__dirname, '../_env/protocol'),
-      targetPath
-    )
+    await promiseNcpApi.ncpAsync(targetInputPath, targetOutputPath)
   } catch (error) {
-    throw error
+    exitProgram(process.pid, chalk.red(`\n${error.message}`), 1)
   }
 }
