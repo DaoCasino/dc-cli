@@ -39,9 +39,9 @@
     "lint": "eslint ./lib ./bin",
     "test": "echo 'test'",
     
-    "start:bankroller_core:local": "bankroller-core start $ACCOUNT_PRIVATE_KEY -l",
-    "start:bankroller_core:ropsten": "bankroller-core start $ACCOUNT_PRIVATE_KEY -r",
-    "start:bankroller_core:rinkeby": "bankroller-core start $ACCOUNT_PRIVATE_KEY -n", 
+    "start:bankroller_core:local": "bankroller-node start $ACCOUNT_PRIVATE_KEY -l",
+    "start:bankroller_core:ropsten": "bankroller-node start $ACCOUNT_PRIVATE_KEY -r",
+    "start:bankroller_core:rinkeby": "bankroller-node start $ACCOUNT_PRIVATE_KEY -n", 
     
     "start:dc_protocol:testrpc": "dc-protocol start",
     
@@ -55,7 +55,7 @@
     "logs:docker:bankroller": ""
   },
   "dependencies": {
-    "bankroller-core": "^0.1.9",
+    "bankroller-node": "^0.1.9",
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
     "dc-protocol": "^0.1.10",
