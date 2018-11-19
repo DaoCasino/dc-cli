@@ -39,9 +39,9 @@
     "lint": "eslint ./lib ./bin",
     "test": "echo 'test'",
     
-    "start:bankroller_core:local": "bankroller-node start $ACCOUNT_PRIVATE_KEY -l",
-    "start:bankroller_core:ropsten": "bankroller-node start $ACCOUNT_PRIVATE_KEY -r",
-    "start:bankroller_core:rinkeby": "bankroller-node start $ACCOUNT_PRIVATE_KEY -n", 
+    "start:bankroller_core:local": "bankroller-node start 0xaa3680d5d48a8283413f7a108367c7299ca73f553735860a87b08f39395618b7 -l",
+    "start:bankroller_core:ropsten": "bankroller-node start %ACCOUNT_PRIVATE_KEY% -r",
+    "start:bankroller_core:rinkeby": "bankroller-node start %ACCOUNT_PRIVATE_KEY% -n", 
     
     "start:dc_protocol:testrpc": "dc-protocol start",
     
