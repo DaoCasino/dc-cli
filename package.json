@@ -35,20 +35,15 @@
   "scripts": {
     "check_update": "ncu bankroller-core dc-protocol dc-messaging -a",
     "publish:npm": "npm run check_update; npm publish --access=public",
-    
     "lint": "eslint ./lib ./bin",
     "test": "echo 'test'",
-    
-    "start:bankroller_core:local": "bankroller-node start $ACCOUNT_PRIVATE_KEY -l",
-    "start:bankroller_core:ropsten": "bankroller-node start $ACCOUNT_PRIVATE_KEY -r",
-    "start:bankroller_core:rinkeby": "bankroller-node start $ACCOUNT_PRIVATE_KEY -n", 
-    
+    "start:bankroller_core:local": "cross-env-shell bankroller-node start 0xaa3680d5d48a8283413f7a108367c7299ca73f553735860a87b08f39395618b7 -l",
+    "start:bankroller_core:ropsten": "cross-env-shell bankroller-node start $ACCOUNT_PRIVATE_KEY -r",
+    "start:bankroller_core:rinkeby": "cross-env-shell bankroller-node start $ACCOUNT_PRIVATE_KEY -n",
     "start:dc_protocol:testrpc": "dc-protocol start",
-    
     "migrate:local": "dc-protocol migrate --network local",
     "migrate:ropsten": "dc-protocol migrate --network ropsten",
     "migrate:rinkeby": "dc-protocol migrate --network rinkeby",
-
     "logs:pm2:testrpc": "pm2 logs dc_protocol --lines=100",
     "logs:pm2:bankroller": "pm2 logs bankroller_core --lines=100",
     "logs:docker:testrpc": "",
@@ -70,6 +65,7 @@
     "update-check": "^1.5.2"
   },
   "devDependencies": {
+    "cross-env": "^5.2.0",
     "eslint": "^4.16.0",
     "eslint-config-standard": "^11.0.0-beta.0",
     "eslint-plugin-import": "^2.13.0",
