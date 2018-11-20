@@ -112,6 +112,7 @@ module.exports = class DApp extends Deployer {
           Utils.exitProgram(process.pid, false, 0)
         }
       } else {
+        process.env.ACCOUNT_PRIVATE_KEY = bankrollerPrivatekey
         await Utils.startCLICommand(
           `npm run start:bankroller_core:${blockchainNetwork}`,
           path.join(__dirname, '../'),
@@ -128,13 +129,20 @@ module.exports = class DApp extends Deployer {
   async _startLocalENV (startOptions = startOptionsConfig) {
     try {
       await Utils.startPM2Service({
-        cwd: path.join(__dirname, '../'),
+        cwd: path.dirname(require.resolve('dc-protocol')),
         name: 'dc_protocol',
         exec_mode: 'fork',
-        script: 'npm',
-        args: 'run start:dc_protocol:testrpc'
+        script: require.resolve('dc-protocol/src/testrpc.server.js')
       })
-
+      //
+      //console.log( require.resolve('dc-protocol/src/testrpc.server.js'))
+      //return
+      // await Utils.startPM2Service({
+      //   cwd: path.join(__dirname, '../../dc-protocol/src'),
+      //   name: 'dc_protocol',
+      //   exec_mode: 'fork',
+      //   script: 'node testrpc.server.js'
+      // })
       const migrateToLocalNetwork = await this.migrateContract({
         network: startOptions.blockchainNetwork
       })
@@ -147,6 +155,7 @@ module.exports = class DApp extends Deployer {
           network: startOptions.blockchainNetwork
         })
       }
+     
     } catch (error) {
       await this.stop()
       Utils.exitProgram(process.pid, error, 1)
