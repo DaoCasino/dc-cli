@@ -113,7 +113,6 @@ module.exports = class DApp extends Deployer {
         }
       } else {
         process.env.ACCOUNT_PRIVATE_KEY = bankrollerPrivatekey
-        console.log(111111)
         await Utils.startCLICommand(
           `npm run start:bankroller_core:${blockchainNetwork}`,
           path.join(__dirname, '../'),
