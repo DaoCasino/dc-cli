@@ -88,13 +88,18 @@ module.exports = class DApp extends Deployer {
 
       if (startInBackground) {
         const bankrollerStartinPM2 = await Utils.startPM2Service({
-          cwd: path.join(__dirname, '../'),
+          cwd: path.dirname(require.resolve('bankroller-node')), // path.join(__dirname, '../'),
           name: 'bankroller_core',
           exec_mode: 'fork',
-          env: { 'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey },
+          env: {
+            'DC_NETWORK': 'local',
+            'DAPPS_FULL_PATH': path.join(path.dirname(require.resolve('bankroller-node')), '../data/dapps'),
+            'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey
+          },
           autorestart: false,
-          script: 'npm',
-          args: `run start:bankroller_core:${blockchainNetwork}`
+          script: path.basename(require.resolve('bankroller-node'))
+          // script: 'npm',
+          // args: `run start:bankroller_core:${blockchainNetwork}`
         })
 
         if (bankrollerStartinPM2) {
@@ -135,8 +140,8 @@ module.exports = class DApp extends Deployer {
         script: require.resolve('dc-protocol/src/testrpc.server.js')
       })
       //
-      //console.log( require.resolve('dc-protocol/src/testrpc.server.js'))
-      //return
+      // console.log( require.resolve('dc-protocol/src/testrpc.server.js'))
+      // return
       // await Utils.startPM2Service({
       //   cwd: path.join(__dirname, '../../dc-protocol/src'),
       //   name: 'dc_protocol',
@@ -155,7 +160,6 @@ module.exports = class DApp extends Deployer {
           network: startOptions.blockchainNetwork
         })
       }
-     
     } catch (error) {
       await this.stop()
       Utils.exitProgram(process.pid, error, 1)
