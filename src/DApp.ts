@@ -106,16 +106,16 @@ export default class DApp extends Deployer implements DAppInstance {
 
       if (startInBackground) {
         const bankrollerStartinPM2 = await Utils.startPM2Service({
-          cwd: path.join(__dirname, '../'),
+          cwd: path.dirname(require.resolve('bankroller-node')), // path.join(__dirname, '../'),
           name: 'bankroller_core',
           exec_mode: 'fork',
           env: {
-            'DC_NETWORK': blockchainNetwork,
-            'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey,
-            // '': path.join,
-            'START_BANKROLLER': 'cli_pm2_start'
+            'DC_NETWORK': 'local',
+            'DAPPS_FULL_PATH': path.join(path.dirname(require.resolve('bankroller-node')), '../data/dapps'),
+            'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey
           },
-          script: require.resolve('bankroller-core')
+          autorestart: false,
+          script: path.basename(require.resolve('bankroller-node'))
         })
 
         if (bankrollerStartinPM2) {
@@ -133,6 +133,7 @@ export default class DApp extends Deployer implements DAppInstance {
           Utils.exitProgram(process.pid, false, 0)
         }
       } else {
+        process.env.ACCOUNT_PRIVATE_KEY = bankrollerPrivatekey
         await Utils.startCLICommand(
           `npm run start:bankroller_core:${blockchainNetwork}`,
           path.join(__dirname, '../'),
@@ -152,14 +153,20 @@ export default class DApp extends Deployer implements DAppInstance {
     try {
       await Utils.connectToPM2Deamon()
       await Utils.startPM2Service({
-        cwd: path.join(__dirname, '../'),
+        cwd: path.dirname(require.resolve('dc-protocol')),
         name: 'dc_protocol',
-        exec_mode: 'fork_mode',
-        autorestart: false,
-        script: 'npm',
-        args: 'run start:dc_protocol:testrpc'
+        exec_mode: 'fork',
+        script: require.resolve('dc-protocol/src/testrpc.server.js')
       })
-      
+      //
+      // console.log( require.resolve('dc-protocol/src/testrpc.server.js'))
+      // return
+      // await Utils.startPM2Service({
+      //   cwd: path.join(__dirname, '../../dc-protocol/src'),
+      //   name: 'dc_protocol',
+      //   exec_mode: 'fork',
+      //   script: 'node testrpc.server.js'
+      // })
       const migrateToLocalNetwork = await this.migrateContract({
         network: startOptions.blockchainNetwork,
         stdmigrate: false

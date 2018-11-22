@@ -1,6 +1,6 @@
 {
   "name": "dc-cli",
-  "version": "0.2.8",
+  "version": "0.2.17",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
   "preferGlobal": true,
@@ -35,40 +35,29 @@
   "scripts": {
     "check_update": "ncu bankroller-core dc-protocol dc-messaging -a",
     "publish:npm": "npm run check_update; npm publish --access=public",
-
-    "build": "npm-run-all typescript",
-    "build:ts": "npm-run-all typescript",
-    "typescript": "tsc --build",
-
     "lint": "eslint ./lib ./bin",
     "test": "echo 'test'",
-    
-    "start:bankroller_core:local": "bankroller-core start $ACCOUNT_PRIVATE_KEY -l",
-    "start:bankroller_core:ropsten": "bankroller-core start $ACCOUNT_PRIVATE_KEY -r",
-    "start:bankroller_core:rinkeby": "bankroller-core start $ACCOUNT_PRIVATE_KEY -n", 
-    
-    "start:dc_protocol:testrpc": "-protocol start",
-    
+    "start:bankroller_core:local": "node node_modules/bankroller-node/bin/deamon start 0xaa3680d5d48a8283413f7a108367c7299ca73f553735860a87b08f39395618b7 -l",
+    "start:bankroller_core:ropsten": "node node_modules/bankroller-node/bin/deamon start $ACCOUNT_PRIVATE_KEY -r",
+    "start:bankroller_core:rinkeby": "node node_modules/bankroller-node/bin/deamon start $ACCOUNT_PRIVATE_KEY -n",
+    "start:dc_protocol:testrpc": "dc-protocol start",
     "migrate:local": "dc-protocol migrate --network local",
     "migrate:ropsten": "dc-protocol migrate --network ropsten",
     "migrate:rinkeby": "dc-protocol migrate --network rinkeby",
-
     "logs:pm2:testrpc": "pm2 logs dc_protocol --lines=100",
     "logs:pm2:bankroller": "pm2 logs bankroller_core --lines=100",
     "logs:docker:testrpc": "",
     "logs:docker:bankroller": ""
   },
   "dependencies": {
-    "bankroller-core": "^0.1.9",
-    "bluebird": "^3.5.3",
+    "bankroller-node": "^0.1.17",
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
-    "dc-protocol": "^0.1.10",
+    "dc-messaging": "^0.1.23",
+    "dc-protocol": "^0.1.18",
     "download": "^7.1.0",
     "inquirer": "^6.0.0",
     "ncp": "^2.0.0",
-    "dc-messaging": "^0.1.7",
-    "dc-logging": "^0.1.7",
     "node-machine-id": "^1.1.10",
     "pm2": "^3.0.3",
     "truffle": "^5.0.0-beta.0",
@@ -76,6 +65,7 @@
     "update-check": "^1.5.2"
   },
   "devDependencies": {
+    "cross-env": "^5.2.0",
     "eslint": "^4.16.0",
     "eslint-config-standard": "^11.0.0-beta.0",
     "eslint-plugin-import": "^2.13.0",
@@ -84,5 +74,6 @@
     "eslint-plugin-standard": "^3.0.1",
     "husky": "^1.0.0-rc.13",
     "npm-check-updates": "^2.14.2"
-  }
+  },
+  "gitHead": "3e5dcaecc303cdce6b606ab1fc570c530592eef4"
 }
