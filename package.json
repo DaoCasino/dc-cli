@@ -55,6 +55,7 @@
     "commander": "^2.16.0",
     "dc-messaging": "^0.1.23",
     "dc-protocol": "^0.1.18",
+    "dc-logging": "^0.1.15",
     "download": "^7.1.0",
     "inquirer": "^6.0.0",
     "ncp": "^2.0.0",
