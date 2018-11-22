@@ -1,6 +1,6 @@
 {
   "name": "dc-cli",
-  "version": "0.2.15",
+  "version": "0.2.17",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
   "preferGlobal": true,
@@ -38,8 +38,8 @@
     "lint": "eslint ./lib ./bin",
     "test": "echo 'test'",
     "start:bankroller_core:local": "node node_modules/bankroller-node/bin/deamon start 0xaa3680d5d48a8283413f7a108367c7299ca73f553735860a87b08f39395618b7 -l",
-    "start:bankroller_core:ropsten": "cross-env-shell node node_modules/bankroller-node/bin/deamon start $ACCOUNT_PRIVATE_KEY -r",
-    "start:bankroller_core:rinkeby": "cross-env-shell node node_modules/bankroller-node/bin/deamon start $ACCOUNT_PRIVATE_KEY -n",
+    "start:bankroller_core:ropsten": "node node_modules/bankroller-node/bin/deamon start $ACCOUNT_PRIVATE_KEY -r",
+    "start:bankroller_core:rinkeby": "node node_modules/bankroller-node/bin/deamon start $ACCOUNT_PRIVATE_KEY -n",
     "start:dc_protocol:testrpc": "dc-protocol start",
     "migrate:local": "dc-protocol migrate --network local",
     "migrate:ropsten": "dc-protocol migrate --network ropsten",
@@ -50,11 +50,11 @@
     "logs:docker:bankroller": ""
   },
   "dependencies": {
-    "bankroller-node": "^0.1.15",
+    "bankroller-node": "^0.1.17",
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
-    "dc-messaging": "^0.1.21",
-    "dc-protocol": "^0.1.16",
+    "dc-messaging": "^0.1.23",
+    "dc-protocol": "^0.1.18",
     "download": "^7.1.0",
     "inquirer": "^6.0.0",
     "ncp": "^2.0.0",
@@ -75,5 +75,5 @@
     "husky": "^1.0.0-rc.13",
     "npm-check-updates": "^2.14.2"
   },
-  "gitHead": "8c311fb1f237fe9a2106c7c691b9691850ad5c4b"
+  "gitHead": "3e5dcaecc303cdce6b606ab1fc570c530592eef4"
 }
