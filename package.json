@@ -1,6 +1,6 @@
 {
   "name": "dc-cli",
-  "version": "0.1.36",
+  "version": "0.2.20",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
   "preferGlobal": true,
