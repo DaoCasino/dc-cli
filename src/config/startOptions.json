@@ -1,4 +1,4 @@
 {
- "useDocker": false,
- "blockchainNetwork": "local"
+  "docker": false,
+  "blockchainNetwork": "ropsten"
 }
