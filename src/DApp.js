@@ -139,15 +139,7 @@ module.exports = class DApp extends Deployer {
         exec_mode: 'fork',
         script: require.resolve('dc-protocol/src/testrpc.server.js')
       })
-      //
-      // console.log( require.resolve('dc-protocol/src/testrpc.server.js'))
-      // return
-      // await Utils.startPM2Service({
-      //   cwd: path.join(__dirname, '../../dc-protocol/src'),
-      //   name: 'dc_protocol',
-      //   exec_mode: 'fork',
-      //   script: 'node testrpc.server.js'
-      // })
+      
       const migrateToLocalNetwork = await this.migrateContract({
         network: startOptions.blockchainNetwork
       })
