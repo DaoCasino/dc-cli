@@ -63,6 +63,7 @@ module.exports = class DApp extends Deployer {
   }
 
   async startBankrollerWithNetwork (options) {
+    const bankrollerStartScript = require.resolve('bankroller-node')
     let startInBackground = options.background
     let blockchainNetwork = options.network
     let bankrollerPrivatekey = options.privatekey
@@ -74,11 +75,13 @@ module.exports = class DApp extends Deployer {
         )).blockchainNetwork
       }
 
-      if (blockchainNetwork !== 'local' && !bankrollerPrivatekey) {
+      if (blockchainNetwork === 'local') {
+        bankrollerPrivatekey = _config.bankrollerLocalPrivateKey
+      } else if (!bankrollerPrivatekey) [
         bankrollerPrivatekey = (await this._params.prompt(
           this._params.getQuestion('inputPrivateKey')
         )).privateKeyToBankroller
-      }
+      ]
 
       if (!startInBackground) {
         startInBackground = (await this._params.prompt(
@@ -86,20 +89,20 @@ module.exports = class DApp extends Deployer {
         )).startInBackground
       }
 
+      const START_ENV = {
+        'DC_NETWORK': blockchainNetwork,
+        'DAPPS_FULL_PATH': path.join(path.dirname(bankrollerStartScript), '../data/dapps'),
+        'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey
+      }
+
       if (startInBackground) {
         const bankrollerStartinPM2 = await Utils.startPM2Service({
-          cwd: path.dirname(require.resolve('bankroller-node')), // path.join(__dirname, '../'),
+          cwd: path.dirname(bankrollerStartScript),
           name: 'bankroller_core',
           exec_mode: 'fork',
-          env: {
-            'DC_NETWORK': 'local',
-            'DAPPS_FULL_PATH': path.join(path.dirname(require.resolve('bankroller-node')), '../data/dapps'),
-            'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey
-          },
+          env: START_ENV,
           autorestart: false,
-          script: path.basename(require.resolve('bankroller-node'))
-          // script: 'npm',
-          // args: `run start:bankroller_core:${blockchainNetwork}`
+          script: path.basename(bankrollerStartScript)
         })
 
         if (bankrollerStartinPM2) {
@@ -117,13 +120,10 @@ module.exports = class DApp extends Deployer {
           Utils.exitProgram(process.pid, false, 0)
         }
       } else {
-        process.env.ACCOUNT_PRIVATE_KEY = bankrollerPrivatekey
         await Utils.startCLICommand(
-          `npm run start:bankroller_core:${blockchainNetwork}`,
+          `node ${bankrollerStartScript}`,
           path.join(__dirname, '../'),
-          {
-            'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey
-          }
+          START_ENV
         )
       }
     } catch (error) {
@@ -139,15 +139,7 @@ module.exports = class DApp extends Deployer {
         exec_mode: 'fork',
         script: require.resolve('dc-protocol/src/testrpc.server.js')
       })
-      //
-      // console.log( require.resolve('dc-protocol/src/testrpc.server.js'))
-      // return
-      // await Utils.startPM2Service({
-      //   cwd: path.join(__dirname, '../../dc-protocol/src'),
-      //   name: 'dc_protocol',
-      //   exec_mode: 'fork',
-      //   script: 'node testrpc.server.js'
-      // })
+      
       const migrateToLocalNetwork = await this.migrateContract({
         network: startOptions.blockchainNetwork
       })
