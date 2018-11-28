@@ -77,11 +77,11 @@ module.exports = class DApp extends Deployer {
 
       if (blockchainNetwork === 'local') {
         bankrollerPrivatekey = _config.bankrollerLocalPrivateKey
-      } else if (!bankrollerPrivatekey) [
+      } else if (!bankrollerPrivatekey) {
         bankrollerPrivatekey = (await this._params.prompt(
           this._params.getQuestion('inputPrivateKey')
         )).privateKeyToBankroller
-      ]
+      }
 
       if (!startInBackground) {
         startInBackground = (await this._params.prompt(
