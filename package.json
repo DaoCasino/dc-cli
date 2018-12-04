@@ -3,6 +3,7 @@
   "version": "0.2.22",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
+  "private": true,
   "preferGlobal": true,
   "license": "GPL-3.0",
   "homepage": "developers.dao.casino",
