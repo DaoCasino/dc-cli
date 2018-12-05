@@ -1,15 +1,15 @@
 import fs from 'fs'
 import pm2 from 'pm2'
+import path from 'path'
 import ncpApi from 'ncp'
 import chalk from 'chalk'
 import config from './config/config'
 import npmCheck from 'update-check'
-import startOptionsConfig from './config/startOptions.json'
 import { exec } from 'child_process'
 import { Logger } from 'dc-logging'
 import { Promise } from 'bluebird'
 import { machineIdSync } from 'node-machine-id'
-import { ServiceConfig } from './interfaces/IDApp'
+import { ServiceConfig, StartOptions } from './interfaces/IDApp'
 
 const log = new Logger('Utils')
 const PromisePm2Api = Promise.promisifyAll(pm2)
@@ -17,17 +17,43 @@ const promiseNcpApi = Promise.promisify(ncpApi)
 
 export const sudo = (): string => (typeof process.env.SUDO_UID !== 'undefined') ? 'sudo -E' : ''
 export const checkENV = (): boolean => !(!fs.existsSync(config.projectsENV))
-export const UUIDGenerate = () => machineIdSync(true)
+export const UUIDGenerate = (): string => machineIdSync(true)
 
-export function changeStartOptionsJSON (options): void {
-  if (
-    startOptionsConfig.useDocker !== options.useDocker ||
-    startOptionsConfig.blockchainNetwork !== options.blockchainNetwork
-  ) {
-    const openFile = fs.openSync(config.startOptions, 'w')
-    fs.writeSync(openFile, JSON.stringify(options, null, ' '), 0, 'utf-8')
-    fs.closeSync(openFile)
+export function changeStartOptionsJSON (options: StartOptions): void {
+  switch (true) {
+    case !fs.existsSync(config.startOptions):
+      fs.writeFileSync(config.startOptions, JSON.stringify(options, null, ' '))
+    case 
+      require(config.startOptions).useDocker !== options.useDocker ||
+      require(config.startOptions).blockchainNetwork !== options.blockchainNetwork:
+        const openFile = fs.openSync(config.startOptions, 'w')
+        fs.writeSync(openFile, JSON.stringify(options, null, ' '), 0, 'utf-8')
+        fs.closeSync(openFile)
   }
+}
+
+export function checkSolidityDappContract (pathToContracts: string): {
+  status, message: string
+} {
+  if (!fs.existsSync(pathToContracts)) {
+    throw new Error(`Cannot find contracts in ${pathToContracts}`)
+  }
+
+  let result = { status: 'fail', message: `Contracts not found in ${chalk.cyan(pathToContracts)}` }
+  const FILES = fs.readdirSync(pathToContracts)
+  for (let i = 0; i < FILES.length; i++) {
+    const PATH_TO_FILE = path.join(pathToContracts, FILES[i])
+    const FILE_STAT = fs.lstatSync(PATH_TO_FILE)
+    if (FILE_STAT.isDirectory()) {
+      checkSolidityDappContract(PATH_TO_FILE)
+    }
+    
+    if (~PATH_TO_FILE.indexOf('.sol')) {
+      result = { status: 'success', message: 'contracts is found' }
+    }
+  }
+
+  return result
 }
 
 export function startCLICommand (
@@ -110,14 +136,23 @@ export function addExitListener (
   const signals: NodeJS.Signals[] = ['SIGINT', 'SIGKILL']
   signals.forEach(signal => {
       process.on(signal, () => {
-        if (callback) {
-          callback()
-        }
-        
-        log.info('!Procces out')
+        if (callback) callback()
         exitProgram(process.ppid, false, 0)
       })
     })
+}
+
+export async function connectToPM2Deamon(): Promise<void> {
+  try {
+    // Object.keys(PromisePm2Api).forEach(console.log)
+    await PromisePm2Api.connectAsync()
+    const pm2EventBus = await PromisePm2Api.launchBusAsync()
+    pm2EventBus.on('log:exit', data => {
+      log.info(data)
+    })
+  } catch (error) {
+    throw error
+  }
 }
 
 export async function startPM2Service (
@@ -130,19 +165,6 @@ export async function startPM2Service (
   }
 }
 
-export async function connectToPM2Deamon(): Promise<void> {
-  try {
-    Object.keys(PromisePm2Api).forEach(console.log)
-    await PromisePm2Api.connectAsync()
-    const pm2EventBus = await PromisePm2Api.launchBusAsync()
-    pm2EventBus.on('log:exit', data => {
-      log.info(data)
-    })
-  } catch (error) {
-    throw error
-  }
-}
-
 export async function deletePM2Service (
   name: string
 ): Promise<string> {
@@ -150,7 +172,9 @@ export async function deletePM2Service (
     await PromisePm2Api.deleteAsync(name)
     await PromisePm2Api.disconnectAsync()
   } catch (error) {
-    exitProgram(process.pid, chalk.red(`\n${error.message}`), 1)
+    exitProgram(process.pid, chalk.red(`
+    Process with name ${name} undefined or stoped now
+    `), 1)
   }
 }
 
@@ -161,6 +185,6 @@ export async function recursiveCopyDirectory (
   try {
     await promiseNcpApi.ncpAsync(targetInputPath, targetOutputPath)
   } catch (error) {
-    exitProgram(process.pid, chalk.red(`\n${error.message}`), 1)
+    exitProgram(process.pid, chalk.red(`\n${error.message}\n`), 1)
   }
 }

@@ -9,7 +9,6 @@ import chalk from 'chalk'
 import config from './config/config'
 import Deployer from './Deployer'
 import program from 'commander'
-import startOptionsConfig from './config/startOptions.json'
 import * as Utils from './Utils'
 import { Logger } from 'dc-logging'
 import { CLIConfigInterface } from './interfaces/ICLIConfig'
@@ -29,7 +28,8 @@ export default class DApp extends Deployer implements DAppInstance {
   async start (options: program.Command): Promise<void> {
     const startOptions = {
       useDocker: options.docker,
-      blockchainNetwork: options.network || 'local'
+      blockchainNetwork: options.network || 'local',
+      stdmigrate: options.stdmigrate || false
     }
 
     if (!startOptions.useDocker) {
@@ -41,7 +41,7 @@ export default class DApp extends Deployer implements DAppInstance {
     Utils.changeStartOptionsJSON(startOptions)
 
     try {
-      (!startOptions.useDocker)
+      (!require(this._config.startOptions).useDocker)
         ? await this._startLocalENV(startOptions)
         : await this._startDockerLocalENV(startOptions)
     } catch (error) {
@@ -50,7 +50,7 @@ export default class DApp extends Deployer implements DAppInstance {
   }
 
   async stop (): Promise<void> {
-    (!startOptionsConfig.useDocker)
+    (!require(this._config.startOptions).useDocker)
       ? await Utils.deletePM2Service('all')
       : await Utils.startCLICommand('docker-compose down', path.join(__dirname, '../'))
 
@@ -72,14 +72,13 @@ export default class DApp extends Deployer implements DAppInstance {
         )).targetLog
     }
 
-    (!startOptionsConfig.useDocker)
+    (!require(this._config.startOptions).useDocker)
       ? Utils.startCLICommand(`npm run logs:pm2:${targetLog}`, path.join(__dirname, '../'))
       : Utils.startCLICommand(`npm run logs:docker:${targetLog}`, path.join(__dirname, '../'))
   }
 
-  async startBankrollerWithNetwork (
-    options: program.Command | StartBankrollerParams
-  ): Promise<void> {
+  async startBankrollerWithNetwork (options: program.Command | StartBankrollerParams) {
+    const bankrollerStartScript = require.resolve('bankroller-node')
     let startInBackground = options.background
     let blockchainNetwork = options.network
     let bankrollerPrivatekey = options.privatekey
@@ -92,6 +91,7 @@ export default class DApp extends Deployer implements DAppInstance {
       }
 
       if (blockchainNetwork === 'local') {
+        bankrollerPrivatekey = this._config.bankrollerLocalPrivateKey
       } else if (!bankrollerPrivatekey) {
         bankrollerPrivatekey = (await this._params.prompt(
           this._params.getQuestion('inputPrivateKey')
@@ -104,23 +104,25 @@ export default class DApp extends Deployer implements DAppInstance {
         )).startInBackground
       }
 
+      const START_ENV = {
+        'DC_NETWORK': blockchainNetwork,
+        'DAPPS_FULL_PATH': path.join(path.dirname(bankrollerStartScript), '../data/dapps'),
+        'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey
+      }
+
       if (startInBackground) {
         const bankrollerStartinPM2 = await Utils.startPM2Service({
-          cwd: path.dirname(require.resolve('bankroller-node')), // path.join(__dirname, '../'),
+          cwd: path.dirname(bankrollerStartScript),
           name: 'bankroller_core',
           exec_mode: 'fork',
-          env: {
-            'DC_NETWORK': 'local',
-            'DAPPS_FULL_PATH': path.join(path.dirname(require.resolve('bankroller-node')), '../data/dapps'),
-            'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey
-          },
+          env: START_ENV,
           autorestart: false,
-          script: path.basename(require.resolve('bankroller-node'))
+          script: path.basename(bankrollerStartScript)
         })
 
         if (bankrollerStartinPM2) {
           Utils.changeStartOptionsJSON({
-            docker: false,
+            useDocker: false,
             blockchainNetwork
           })
 
@@ -133,13 +135,10 @@ export default class DApp extends Deployer implements DAppInstance {
           Utils.exitProgram(process.pid, false, 0)
         }
       } else {
-        process.env.ACCOUNT_PRIVATE_KEY = bankrollerPrivatekey
         await Utils.startCLICommand(
-          `npm run start:bankroller_core:${blockchainNetwork}`,
+          `node ${bankrollerStartScript}`,
           path.join(__dirname, '../'),
-          {
-            'ACCOUNT_PRIVATE_KEY': bankrollerPrivatekey
-          }
+          START_ENV
         )
       }
     } catch (error) {
@@ -148,28 +147,21 @@ export default class DApp extends Deployer implements DAppInstance {
   }
 
   async _startLocalENV (
-    startOptions: StartOptions = startOptionsConfig
+    startOptions: StartOptions = require(this._config.startOptions)
   ): Promise<void> {
     try {
       await Utils.connectToPM2Deamon()
       await Utils.startPM2Service({
         cwd: path.dirname(require.resolve('dc-protocol')),
         name: 'dc_protocol',
+        env: { 'no_db': true },
         exec_mode: 'fork',
         script: require.resolve('dc-protocol/src/testrpc.server.js')
       })
-      //
-      // console.log( require.resolve('dc-protocol/src/testrpc.server.js'))
-      // return
-      // await Utils.startPM2Service({
-      //   cwd: path.join(__dirname, '../../dc-protocol/src'),
-      //   name: 'dc_protocol',
-      //   exec_mode: 'fork',
-      //   script: 'node testrpc.server.js'
-      // })
+
       const migrateToLocalNetwork = await this.migrateContract({
         network: startOptions.blockchainNetwork,
-        stdmigrate: false
+        stdmigrate: startOptions.stdmigrate
       })
 
       if (migrateToLocalNetwork === 'success') {
@@ -187,7 +179,7 @@ export default class DApp extends Deployer implements DAppInstance {
   }
 
   async _startDockerLocalENV (
-    startOptions: StartOptions = startOptionsConfig
+    startOptions: StartOptions = require(this._config.startOptions)
   ): Promise<void> {
     log.info('comming soon...')
     Utils.exitProgram(process.pid, false, 0)

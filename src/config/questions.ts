@@ -1,3 +1,4 @@
+import path from 'path'
 import chalk from 'chalk'
 import config from './config'
 import * as Utils from '../Utils'
@@ -103,6 +104,12 @@ export default function getQuestion (name): QuestionInterface {
       type: 'input',
       name: 'gamename',
       message: 'Input name for game'
+    },
+
+    inputContractsPath: {
+      type: 'input',
+      name: 'contractsPath',
+      message: `not contracts in ${path.join(process.cwd(), './dapp/contracts')} directory, please input correct path to protocol contracts`
     }
   }
 

@@ -11,6 +11,7 @@ export interface InstanceParams {
 export interface StartOptions {
   useDocker: boolean
   blockchainNetwork: string
+  stdmigrate?: boolean
 }
 
 export interface GameFiles {

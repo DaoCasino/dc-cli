@@ -6,6 +6,7 @@ import {
 } from './interfaces/IDApp'
 import fs from 'fs'
 import path from 'path'
+import chalk from 'chalk'
 import program from 'commander'
 import * as Utils from './Utils'
 import { Logger } from 'dc-logging'
@@ -26,40 +27,52 @@ export default class Deployer implements DeployerInstance {
   }
 
   async migrateContract (options: program.Command | MigrationParams) {
-    let blockchainNetwork = options.network
-    if (!options.stdmigrate) {
-      process.env.CONTRACTS_PATH = path.join(
-        process.cwd(),
-        './dapp/contracts'
-      )
-    }
-
+    let network = options.network
+    let mnemonic = null
+    let contractsPath = null
+    const STD_CONTRACTS = options.stdmigrate
+    const DEFAULT_CONTRACTS_PATH = path.join(process.cwd(), './dapp/contracts')
     try {
-      if (!blockchainNetwork) {
-        blockchainNetwork = (await this._params.prompt(
+      if (!network) {
+        network = (await this._params.prompt(
           this._params.getQuestion('selectBlockchainNetwork')
         )).blockchainNetwork
       }
-
-      if (blockchainNetwork !== 'local') {
-        process.env.MNEMONIC = (await this._params.prompt(
+      
+      if (network !== 'local') {
+        mnemonic = (await this._params.prompt(
           this._params.getQuestion('inputMnemonic')
         )).mnemonic
       }
 
+      if (STD_CONTRACTS) {
+        log.info(chalk.yellow('Use standart dc-protocol contract')) 
+      } else if (!fs.existsSync(DEFAULT_CONTRACTS_PATH)) {
+        const GET_PATH = (await this._params.prompt(
+          this._params.getQuestion('inputContractsPath')
+        )).contractsPath
+
+        contractsPath = path.join(process.cwd(), GET_PATH)
+        if (!fs.existsSync(contractsPath)) {
+          throw new Error(`directory is not exist path: ${contractsPath}`)
+        }
+      }
+
       const contractMigrate = await Utils.startCLICommand(
-        `npm run migrate:${blockchainNetwork}`,
-        path.join(__dirname, '../')
+        `node CLI migrate --network ${network}`,
+        path.join(path.dirname(require.resolve('dc-protocol')), '/bin'),
+        {
+          MNEMONIC: mnemonic,
+          CONTRACTS_PATH: contractsPath
+        }
       )
 
       if (contractMigrate.status === 'success') {
-        log.info(`Contracts deploy to ${blockchainNetwork} successed`)
+        log.info(`>> Contracts deploy to ${network} network successed <<`)
         return contractMigrate.status
-      } else {
-        throw new Error('Contracts is not migrate to the network')
       }
     } catch (error) {
-      throw error
+      Utils.exitProgram(process.pid, chalk.red(error.message), 1)
     }
   }
 

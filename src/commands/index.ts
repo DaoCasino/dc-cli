@@ -93,6 +93,7 @@ program
   .option('-d, --docker', 'Start env in docker containers')
   .option('-n, --network <network>', 'Set blockchain network for start env')
   .option('-f, --force', 'Force run command not depend enviroment')
+  .option('-s, --stdmigrate', 'Start protocol with standart dc-protocol contracts')
   .action(command => CLI.DApp.start(command))
 
 program
