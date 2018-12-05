@@ -1,10 +1,11 @@
 import fs from 'fs'
 import pm2 from 'pm2'
-import path from 'path'
 import ncpApi from 'ncp'
 import chalk from 'chalk'
 import config from './config/config'
 import npmCheck from 'update-check'
+import startConfigInJson from './config/startOptions.json'
+
 import { exec } from 'child_process'
 import { Logger } from 'dc-logging'
 import { Promise } from 'bluebird'
@@ -20,40 +21,14 @@ export const checkENV = (): boolean => !(!fs.existsSync(config.projectsENV))
 export const UUIDGenerate = (): string => machineIdSync(true)
 
 export function changeStartOptionsJSON (options: StartOptions): void {
-  switch (true) {
-    case !fs.existsSync(config.startOptions):
-      fs.writeFileSync(config.startOptions, JSON.stringify(options, null, ' '))
-    case 
-      require(config.startOptions).useDocker !== options.useDocker ||
-      require(config.startOptions).blockchainNetwork !== options.blockchainNetwork:
-        const openFile = fs.openSync(config.startOptions, 'w')
-        fs.writeSync(openFile, JSON.stringify(options, null, ' '), 0, 'utf-8')
-        fs.closeSync(openFile)
+  if (
+    startConfigInJson.useDocker !== options.useDocker ||
+    startConfigInJson.blockchainNetwork !== options.blockchainNetwork
+  ) {
+    const openFile = fs.openSync(config.startOptions, 'w')
+    fs.writeSync(openFile, JSON.stringify(options, null, ' '), 0, 'utf-8')
+    fs.closeSync(openFile)
   }
-}
-
-export function checkSolidityDappContract (pathToContracts: string): {
-  status, message: string
-} {
-  if (!fs.existsSync(pathToContracts)) {
-    throw new Error(`Cannot find contracts in ${pathToContracts}`)
-  }
-
-  let result = { status: 'fail', message: `Contracts not found in ${chalk.cyan(pathToContracts)}` }
-  const FILES = fs.readdirSync(pathToContracts)
-  for (let i = 0; i < FILES.length; i++) {
-    const PATH_TO_FILE = path.join(pathToContracts, FILES[i])
-    const FILE_STAT = fs.lstatSync(PATH_TO_FILE)
-    if (FILE_STAT.isDirectory()) {
-      checkSolidityDappContract(PATH_TO_FILE)
-    }
-    
-    if (~PATH_TO_FILE.indexOf('.sol')) {
-      result = { status: 'success', message: 'contracts is found' }
-    }
-  }
-
-  return result
 }
 
 export function startCLICommand (
@@ -144,12 +119,11 @@ export function addExitListener (
 
 export async function connectToPM2Deamon(): Promise<void> {
   try {
-    // Object.keys(PromisePm2Api).forEach(console.log)
     await PromisePm2Api.connectAsync()
-    const pm2EventBus = await PromisePm2Api.launchBusAsync()
-    pm2EventBus.on('log:exit', data => {
-      log.info(data)
-    })
+    // const pm2EventBus = await PromisePm2Api.launchBusAsync()
+    // pm2EventBus.on('log:exit', data => {
+    //   log.info(data)
+    // })
   } catch (error) {
     throw error
   }
@@ -159,7 +133,8 @@ export async function startPM2Service (
   serviceConfig: ServiceConfig
 ): Promise<string> {
   try {
-    await PromisePm2Api.startAsync(serviceConfig)
+    const pm2Process = await PromisePm2Api.startAsync(serviceConfig)
+    return pm2Process[0].pm2_env
   } catch (error) {
     throw error
   }
@@ -172,9 +147,7 @@ export async function deletePM2Service (
     await PromisePm2Api.deleteAsync(name)
     await PromisePm2Api.disconnectAsync()
   } catch (error) {
-    exitProgram(process.pid, chalk.red(`
-    Process with name ${name} undefined or stoped now
-    `), 1)
+    throw error
   }
 }
 

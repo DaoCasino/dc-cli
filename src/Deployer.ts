@@ -1,14 +1,14 @@
+import fs from 'fs'
+import path from 'path'
+import chalk from 'chalk'
+import program from 'commander'
+import * as Utils from './Utils'
 import {
   DeployerInstance,
   InstanceParams,
   UploadGameData,
   MigrationParams
 } from './interfaces/IDApp'
-import fs from 'fs'
-import path from 'path'
-import chalk from 'chalk'
-import program from 'commander'
-import * as Utils from './Utils'
 import { Logger } from 'dc-logging'
 import { PingService } from 'bankroller-core/lib/dapps/PingService'
 import { IpfsTransportProvider } from 'dc-messaging'
@@ -30,7 +30,7 @@ export default class Deployer implements DeployerInstance {
     let network = options.network
     let mnemonic = null
     let contractsPath = null
-    const STD_CONTRACTS = options.stdmigrate
+    const USE_STD_CONTRACTS = options.stdmigrate
     const DEFAULT_CONTRACTS_PATH = path.join(process.cwd(), './dapp/contracts')
     try {
       if (!network) {
@@ -45,16 +45,21 @@ export default class Deployer implements DeployerInstance {
         )).mnemonic
       }
 
-      if (STD_CONTRACTS) {
-        log.info(chalk.yellow('Use standart dc-protocol contract')) 
+      if (USE_STD_CONTRACTS) {
+        log.info(chalk.yellow('Use standart dc-protocol contract for migrate')) 
       } else if (!fs.existsSync(DEFAULT_CONTRACTS_PATH)) {
         const GET_PATH = (await this._params.prompt(
           this._params.getQuestion('inputContractsPath')
         )).contractsPath
 
         contractsPath = path.join(process.cwd(), GET_PATH)
-        if (!fs.existsSync(contractsPath)) {
-          throw new Error(`directory is not exist path: ${contractsPath}`)
+        const PATH_TO_MIGRATE_CONTRACT = path.join(contractsPath, 'devtools/Migrations.sol')
+        if (!fs.existsSync(PATH_TO_MIGRATE_CONTRACT)) {
+          log.info(chalk.yellow(`
+            \rIn ${chalk.cyan(contractsPath)}
+            \rnot ${chalk.green('Migrations.sol')} contract so dc-cli
+            \rwill use standart contract for migrate
+          `)) 
         }
       }
 
