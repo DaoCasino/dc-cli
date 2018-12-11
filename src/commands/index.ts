@@ -152,7 +152,7 @@ program
   .option('-p, --platformid <platformid>')
   .option('-a, --address <bankrollerAddress>', 'Bankroller address')
   .option('-g, --game-path <gamepath>', 'Path to upload dapp.logic.js and dapp.manifest.js')
-  .option('-n, --name <gameName>', 'Name for game')
+  .option('-n, --name-game <gameName>', 'Name for game')
   .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.uploadGameToBankroller(command))
   .on('--help', () => {

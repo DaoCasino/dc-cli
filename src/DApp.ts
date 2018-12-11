@@ -33,11 +33,12 @@ export default class DApp extends Deployer implements DAppInstance {
       stdmigrate: options.stdmigrate || false
     }
 
-    if (!startOptions.useDocker) {
-      startOptions.useDocker = (await this._params.prompt(
-        this._params.getQuestion('useDocker')
-      )).useDocker
-    }
+    // TODO: uncomment when implement up enviroment with docker
+    // if (!startOptions.useDocker) {
+    //   startOptions.useDocker = (await this._params.prompt(
+    //     this._params.getQuestion('useDocker')
+    //   )).useDocker
+    // }
 
     Utils.changeStartOptionsJSON(startOptions)
 
@@ -152,7 +153,7 @@ export default class DApp extends Deployer implements DAppInstance {
     startOptions: StartOptions = startConfigInJson
   ): Promise<void> {
     try {
-      await Utils.connectToPM2Deamon()
+      // await Utils.connectToPM2Deamon()
       await Utils.startPM2Service({
         cwd: path.dirname(require.resolve('dc-protocol')),
         name: 'dc-protocol',

@@ -120,10 +120,19 @@ export function addExitListener (
 export async function connectToPM2Deamon(): Promise<void> {
   try {
     await PromisePm2Api.connectAsync()
-    // const pm2EventBus = await PromisePm2Api.launchBusAsync()
-    // pm2EventBus.on('log:exit', data => {
-    //   log.info(data)
-    // })
+    const pm2EventBus = await PromisePm2Api.launchBusAsync()
+    pm2EventBus.on('log:err', async data => {
+      await deletePM2Service('all')
+      exitProgram(
+        process.pid,
+        chalk.yellow(`
+          \rprocess with name ${chalk.cyan(data.process.name)}
+          \rclosed with error error message:
+          \r${chalk.red(data.data)}
+        `),
+        1
+      )
+    })
   } catch (error) {
     throw error
   }

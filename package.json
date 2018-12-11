@@ -45,7 +45,7 @@
     "start:bankroller_core:local": "node node_modules/bankroller-node/bin/deamon start 0xaa3680d5d48a8283413f7a108367c7299ca73f553735860a87b08f39395618b7 -l",
     "start:bankroller_core:ropsten": "cross-env-shell node node_modules/bankroller-node/bin/deamon start $ACCOUNT_PRIVATE_KEY -r",
     "start:bankroller_core:rinkeby": "cross-env-shell node node_modules/bankroller-node/bin/deamon start $ACCOUNT_PRIVATE_KEY -n",
-    "start:dc_protocol:testrpc": "dc-protocol start",
+    "start:dc_protocol:testrpc": "d-protocol start",
     "migrate:local": "dc-protocol migrate --network local",
     "migrate:ropsten": "dc-protocol migrate --network ropsten",
     "migrate:rinkeby": "dc-protocol migrate --network rinkeby",
@@ -66,8 +66,6 @@
     "ncp": "^2.0.0",
     "node-machine-id": "^1.1.10",
     "pm2": "^3.0.3",
-    "truffle": "^5.0.0-beta.0",
-    "truffle-hdwallet-provider": "^1.0.0-web3one.0",
     "update-check": "^1.5.2"
   },
   "devDependencies": {

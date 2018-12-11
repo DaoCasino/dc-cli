@@ -86,21 +86,22 @@ export default class Deployer implements DeployerInstance {
       platformID: options.platformid,
       gamePath: options.gamePath,
       bankrollerAddress: options.address,
-      gameName: options.name,
+      gameName: options.nameGame,
       gameFiles: null
     }
 
-    if (!this._gameUploadData.platformID) {
-      this._gameUploadData.platformID = (await this._params.prompt(
-        this._params.getQuestion('inputPlatformID')
-      )).platformID
-    }
+    // if (!this._gameUploadData.platformID) {
+    //   this._gameUploadData.platformID = (await this._params.prompt(
+    //     this._params.getQuestion('inputPlatformID')
+    //   )).platformID
+    // }
 
-    if (!this._gameUploadData.bankrollerAddress) {
-      this._gameUploadData.bankrollerAddress = (await this._params.prompt(
-        this._params.getQuestion('inputBankrollerAddress')
-      )).bankrollerAddress
-    }
+    // if (!this._gameUploadData.bankrollerAddress) {
+    //   this._gameUploadData.bankrollerAddress = (await this._params.prompt(
+    //     this._params.getQuestion('inputBankrollerAddress')
+    //   )).bankrollerAddress
+    // }
+    // TODO: Implement bankroller-node ping service
 
     if (!this._gameUploadData.gameName) {
       this._gameUploadData.gameName = (await this._params.prompt(
@@ -113,10 +114,12 @@ export default class Deployer implements DeployerInstance {
         this._params.getQuestion('inputGamePath')
       )).gamePath
     }
-
-    this._provider = await IpfsTransportProvider.create()
-    this._pingService = await this._provider.getRemoteInterface(this._gameUploadData.platformID)
-    this._pingService.on(PingService.EVENT_JOIN, async (data) => this._uploadGame(data))
+    
+    this._uploadBankrollerInDepend()
+    // this._provider = await IpfsTransportProvider.create()
+    // this._pingService = await this._provider.getRemoteInterface(this._gameUploadData.platformID)
+    // this._pingService.on(PingService.EVENT_JOIN, async (data) => this._uploadGame(data))
+    // TODO: Implement bankroller-node ping service
   }
 
   async deployGameToIPFS () {
@@ -125,6 +128,36 @@ export default class Deployer implements DeployerInstance {
 
   async publishGame () {
     log.info('comming soon...')
+  }
+
+  _uploadBankrollerInDepend() {
+    let gameFiles = []
+    const GAME_FILES_PATH = path.join(process.cwd(), this._gameUploadData.gamePath)
+    const FILE_NAME_TEMPLATE = /dapp[\.\-_](manifest|logic)\.js/
+    const BANKROLLER_NODE_DAPPS = path.join(path.dirname(require.resolve('bankroller-node')), '../data/dapps')
+    const DAPP_PATH = path.join(BANKROLLER_NODE_DAPPS, this._gameUploadData.gameName)
+
+    if (!fs.existsSync(DAPP_PATH)) {
+      fs.mkdirSync(DAPP_PATH)
+    }
+
+    if (fs.existsSync(GAME_FILES_PATH)) {
+      gameFiles = fs.readdirSync(GAME_FILES_PATH)
+        .filter(fileName => (FILE_NAME_TEMPLATE.test(fileName)) && fileName)
+        .map(fileName => {
+          return { fileName, fileData: fs.readFileSync(path.join(GAME_FILES_PATH, fileName), 'utf-8') }
+        })
+        
+        gameFiles.forEach(file => {
+          const FILE_PATH = path.join(DAPP_PATH, file.fileName)
+          fs.writeFileSync(FILE_PATH, file.fileData, 'utf-8')
+        })
+    }
+
+    log.info(chalk.yellow(`
+      \rYour dapp uploaded to bankroller
+      \rpath to your dapp: ${chalk.cyan(DAPP_PATH)}
+    `))
   }
 
   async _uploadGame (data) {
