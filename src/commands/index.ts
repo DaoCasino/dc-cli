@@ -90,11 +90,21 @@ program
   .command('start')
   .description(`${chalk.green(commands['start'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
-  .option('-d, --docker', 'Start env in docker containers')
+  // .option('-d, --docker', 'Start env in docker containers')
   .option('-n, --network <network>', 'Set blockchain network for start env')
   .option('-f, --force', 'Force run command not depend enviroment')
   .option('-s, --stdmigrate', 'Start protocol with standart dc-protocol contracts')
   .action(command => CLI.DApp.start(command))
+
+program
+  .command('testrpcup')
+  .description(`${chalk.green(commands['testrpcup'].description.trim())} `)
+  .usage(`${chalk.red('[options]')}`)
+  .option('-h, --host <host>', 'Use your custom host for ganache testrpc, default 0.0.0.0')
+  .option('-p, --port <port>', 'Use your custom port for ganache testrpc, default 8545')
+  .option('-n, --nodb', `Don't use data base in ganache testrpc` )
+  .option('-b, --background', 'Start process in')
+  .action(command => CLI.DApp.startTestRPC(command))
 
 program
   .command('bankrollup')
@@ -112,7 +122,7 @@ program
 
       Example run:
 
-        dc-cli bankup --background -nnetwork ${chalk.green('ropsten')} -privatekey ${chalk.green('0x1882c2a6d0df1210d643f82f69d0bdfa0e2e1eaa963384826a4f24d5b5529e10')}
+        dc-cli bankup --background --network ${chalk.green('ropsten')} --privatekey ${chalk.green('0x1882c2a6d0df1210d643f82f69d0bdfa0e2e1eaa963384826a4f24d5b5529e10')}
       ${chalk.yellow(`
         If arguments are not passed then cli will
         ask, leading questions and set needed arguments 
@@ -133,7 +143,7 @@ program
   .usage(`${chalk.red('[options]')}`)
   .option('-b, --bankroller', 'View bankroller logs')
   .option('-t, --testrpc', 'View testrpc logs')
-  .option('-d, --docker', 'Start docker logs')
+  // .option('-d, --docker', 'Start docker logs')
   .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.viewLogs(command))
 

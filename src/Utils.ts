@@ -1,5 +1,4 @@
 import fs from 'fs'
-import pm2 from 'pm2'
 import ncpApi from 'ncp'
 import chalk from 'chalk'
 import config from './config/config'
@@ -10,10 +9,9 @@ import { exec } from 'child_process'
 import { Logger } from 'dc-logging'
 import { Promise } from 'bluebird'
 import { machineIdSync } from 'node-machine-id'
-import { ServiceConfig, StartOptions } from './interfaces/IDApp'
+import { StartOptions } from './interfaces/IDApp'
 
 const log = new Logger('Utils')
-const PromisePm2Api = Promise.promisifyAll(pm2)
 const promiseNcpApi = Promise.promisify(ncpApi)
 
 export const sudo = (): string => (typeof process.env.SUDO_UID !== 'undefined') ? 'sudo -E' : ''
@@ -29,39 +27,6 @@ export function changeStartOptionsJSON (options: StartOptions): void {
     fs.writeSync(openFile, JSON.stringify(options, null, ' '), 0, 'utf-8')
     fs.closeSync(openFile)
   }
-}
-
-export function startCLICommand (
-  command: string,
-  target: string,
-  userEnv: any = {}
-): Promise<{
-  status: string
-}> {
-  return new Promise((resolve, reject) => {
-    const asignEnv = { ...process.env, ...userEnv }
-    const startChildProcess = exec(
-      command,
-      {
-        cwd: target,
-        env: asignEnv
-      }
-    )
-
-    const printOut = data => log.info(data)
-    startChildProcess.stdout.on('data', printOut)
-    startChildProcess.stderr.on('data', printOut)
-
-    startChildProcess.on('error', error => reject(error))
-    startChildProcess.on('exit', code => {
-      startChildProcess.stdout.off('data', printOut)
-      startChildProcess.stderr.off('data', printOut);
-
-      (code !== 0)
-        ? reject(new Error(`child procces ${command} exit with code ${code}`))
-        : resolve({ status: 'success' })
-    })
-  })
 }
 
 export async function checkLatestVersion (): Promise<boolean | null> {
@@ -113,51 +78,8 @@ export function addExitListener (
       process.on(signal, () => {
         if (callback) callback()
         exitProgram(process.ppid, false, 0)
-      })
+      }) 
     })
-}
-
-export async function connectToPM2Deamon(): Promise<void> {
-  try {
-    await PromisePm2Api.connectAsync()
-    const pm2EventBus = await PromisePm2Api.launchBusAsync()
-    pm2EventBus.on('log:err', async data => {
-      await deletePM2Service('all')
-      exitProgram(
-        process.pid,
-        chalk.yellow(`
-          \rprocess with name ${chalk.cyan(data.process.name)}
-          \rclosed with error error message:
-          \r${chalk.red(data.data)}
-        `),
-        1
-      )
-    })
-  } catch (error) {
-    throw error
-  }
-}
-
-export async function startPM2Service (
-  serviceConfig: ServiceConfig
-): Promise<string> {
-  try {
-    const pm2Process = await PromisePm2Api.startAsync(serviceConfig)
-    return pm2Process[0].pm2_env
-  } catch (error) {
-    throw error
-  }
-}
-
-export async function deletePM2Service (
-  name: string
-): Promise<string> {
-  try {
-    await PromisePm2Api.deleteAsync(name)
-    await PromisePm2Api.disconnectAsync()
-  } catch (error) {
-    throw error
-  }
 }
 
 export async function recursiveCopyDirectory (
@@ -167,6 +89,6 @@ export async function recursiveCopyDirectory (
   try {
     await promiseNcpApi.ncpAsync(targetInputPath, targetOutputPath)
   } catch (error) {
-    exitProgram(process.pid, chalk.red(`\n${error.message}\n`), 1)
+    throw error
   }
 }

@@ -78,7 +78,7 @@ export default function getQuestion (name): QuestionInterface {
     startInBackground: {
       type: 'confirm',
       name: 'startInBackground',
-      message: 'Start bankroller in background',
+      message: 'Start process in background',
       default: false
     },
 
@@ -110,6 +110,25 @@ export default function getQuestion (name): QuestionInterface {
       type: 'input',
       name: 'contractsPath',
       message: `not contracts in ${path.join(process.cwd(), './dapp/contracts')} directory, please input correct path to protocol contracts`
+    },
+
+    inputTestRPCHost: {
+      type: 'input',
+      name: 'testrpcHost',
+      message: 'How use host for ganache?'
+    },
+
+    inputTestRPCPort: {
+      type: 'input',
+      name: 'testrpcPort',
+      message: 'How use port for ganache?'
+    },
+
+    useTestRPCDB: {
+      type: 'confirm',
+      name: 'nodb',
+      message: 'Use DB in ganache?',
+      default: true
     }
   }
 

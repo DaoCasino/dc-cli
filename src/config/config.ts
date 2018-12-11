@@ -6,6 +6,7 @@ const config: CLIConfigInterface = {
     { name: 'list', description: '       View available official templates', env: false },
     { name: 'create', description: '     Generate a new project from a template', env: false },
     { name: 'bankrollup', description: ' Start bankroller in target network', env: false },
+    { name: 'testrpcup', description: '  Start ganache testrpc', env: false },
     { name: 'migrate', description: '    migrate contract to the network', env: false },
     { name: 'start', description: '      Up env for development dapp', env: false },
     { name: 'stop', description: '       Down env for development dapp', env: false },

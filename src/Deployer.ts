@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
 import program from 'commander'
+import ProcessManager from './ProcessManager'
 import * as Utils from './Utils'
 import {
   DeployerInstance,
@@ -11,6 +12,7 @@ import {
 } from './interfaces/IDApp'
 import { Logger } from 'dc-logging'
 import { PingService } from 'bankroller-core/lib/dapps/PingService'
+import { ProcessManagerInstance } from './interfaces/IProcessManager'
 import { IpfsTransportProvider } from 'dc-messaging'
 
 const log = new Logger('Deployer')
@@ -19,7 +21,7 @@ export default class Deployer implements DeployerInstance {
   protected _params: InstanceParams
   private _gameUploadData: UploadGameData
   private _provider: IpfsTransportProvider
-  private _pingService
+  private _pingService: PingService
 
   constructor (params: InstanceParams) {
     this._params = params
@@ -63,7 +65,7 @@ export default class Deployer implements DeployerInstance {
         }
       }
 
-      const contractMigrate = await Utils.startCLICommand(
+      const contractMigrate = await this._params.processManager.startChildProcess(
         `node CLI migrate --network ${network}`,
         path.join(path.dirname(require.resolve('dc-protocol')), '/bin'),
         {

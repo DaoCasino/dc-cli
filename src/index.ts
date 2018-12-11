@@ -5,19 +5,23 @@ import chalk from 'chalk'
 import program from 'commander'
 import inquirer from 'inquirer'
 import download from 'download'
+import ProcessManager from './ProcessManager'
 import * as Utils from './Utils'
+
 import { spawn } from 'child_process'
 import { Logger } from 'dc-logging'
 import { DAppInstance } from './interfaces/IDApp'
+import { ProcessManagerInstance } from './interfaces/IProcessManager'
 import { CLIParams, CLIInstanceInterface } from './interfaces/ICLIInstance'
 import { CLIConfigInterface, QuestionInterface } from './interfaces/ICLIConfig'
 
-const log = new Logger('CLIInstance')
+const log = new Logger('CLIInstance:')
 
 export default class CLIInstance implements CLIInstanceInterface {
   private _params: CLIParams
   private _config: CLIConfigInterface
   private _prompt: inquirer
+  private _processManager: ProcessManagerInstance
   private _nodeStart: string
   private _getQuestion: (name: string) => QuestionInterface
 
@@ -29,12 +33,14 @@ export default class CLIInstance implements CLIInstanceInterface {
     this._prompt = inquirer.createPromptModule()
     this._nodeStart = `node ${path.join(__dirname, '../bin/CLI')}`
     this._getQuestion = this._params.getQuestion
+    this._processManager = new ProcessManager
 
     this.DApp = new DApp({
       prompt: this._prompt,
       config: this._config,
       nodeStart: this._nodeStart,
-      getQuestion: this._getQuestion
+      getQuestion: this._getQuestion,
+      processManager: this._processManager
     })
   }
 
@@ -94,24 +100,6 @@ export default class CLIInstance implements CLIInstanceInterface {
           this._getQuestion('useYarn')
         )).useYarn
     }
-    // if (typeof template === 'undefined') {
-    //   template = (await this._prompt(
-    //     this._getQuestion('templateSelect')
-    //   )).template
-    // }
-
-    // if (typeof directory === 'undefined') {
-    //   directory = (await this._prompt(
-    //     this._getQuestion('directoryInput')
-    //   )).directory
-    // }
-
-    // let useYarn = options.yarn
-    // if (!useYarn) {
-    //   useYarn = (await this._prompt(
-    //     this._getQuestion('useYarn')
-    //   )).useYarn
-    // }
 
     try {
       const targetDirectory = path.join(process.cwd(), `${directory}`)
@@ -156,7 +144,10 @@ export default class CLIInstance implements CLIInstanceInterface {
     targetDirectory: string
   ): Promise<boolean> {
     const generateCommand = `${packageManager} install`
-    const installProject = await Utils.startCLICommand(generateCommand, targetDirectory)
+    const installProject = await this._processManager.startChildProcess(
+      generateCommand,
+      targetDirectory
+    )
 
     if (installProject.status === 'success') {
       log.info('Install sample success')

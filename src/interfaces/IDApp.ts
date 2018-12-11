@@ -1,11 +1,14 @@
 import program from 'commander'
 import prompt from 'inquirer'
+import { ProcessManagerInstance } from './IProcessManager'
 import { CLIConfigInterface, QuestionInterface } from './ICLIConfig'
+
 export interface InstanceParams {
   prompt: prompt,
   config: CLIConfigInterface,
   nodeStart: string,
   getQuestion: (name: string) => QuestionInterface
+  processManager: ProcessManagerInstance
 }
 
 export interface StartOptions {
@@ -32,22 +35,18 @@ export interface MigrationParams {
   stdmigrate: boolean
 }
 
+export interface StartTestRPCParams {
+  host: string
+  port: number
+  nodb: boolean
+  background: boolean
+}
+
 export interface StartBankrollerParams {
   background: boolean,
   exit: boolean,
   privatekey: string,
   network: string
-}
-
-export interface ServiceConfig {
-  cwd: string
-  name: string
-  exec_mode: string
-  env?: any
-  script: string
-  args?: string
-  autorestart?: boolean
-  watch?: boolean
 }
 
 export interface DeployerInstance {
@@ -61,6 +60,7 @@ export interface DAppInstance extends DeployerInstance {
   start: (options: program.Command) => Promise<void>
   stop: () => Promise<void>
   viewLogs: (options: program.Command) => Promise<void>
+  startTestRPC: (options: program.Command | StartTestRPCParams) => Promise<void>
   startBankrollerWithNetwork: (
     options: program.Command | StartBankrollerParams
   ) => Promise<void>
