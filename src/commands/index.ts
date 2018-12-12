@@ -156,13 +156,12 @@ program
   .action(command => CLI.DApp.migrateContract(command))
 
 program
-  .command('upload')
-  .description(`${chalk.green(commands['upload'].description.trim())} `)
+  .command('upload-game')
+  .description(`${chalk.green(commands['upload-game'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
-  .option('-p, --platformid <platformid>')
+  .option('-p, --platformid <platformId>')
   .option('-a, --address <bankrollerAddress>', 'Bankroller address')
-  .option('-g, --game-path <gamepath>', 'Path to upload dapp.logic.js and dapp.manifest.js')
-  .option('-n, --name-game <gameName>', 'Name for game')
+  .option('-g, --game-path <gamePath>', 'Path to upload dapp.logic.js and dapp.manifest.js')
   .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.uploadGameToBankroller(command))
   .on('--help', () => {
@@ -173,13 +172,39 @@ program
 
       Example run:
 
-        dc-cli upload --platformid ${chalk.green('DC_Platform')} --address ${chalk.green('0xf3b7416161E69B4fbF8b7E61a9326F4251ca0a5D')} --game-path ${chalk.green('./dapp')} --name ${chalk.green('example_game_v1')}
+        dc-cli upload --platformid ${chalk.green('DC_Platform')} --address ${chalk.green('0xf3b7416161E69B4fbF8b7E61a9326F4251ca0a5D')} --game-path ${chalk.green('./dapp')}
       ${chalk.yellow(`
         If arguments are not passed then cli will
         ask, leading questions and set needed arguments 
       `)}
     `)
   })
+
+program
+  .command('unload-game')
+  .description(`${chalk.green(commands['unload-game'].description.trim())} `)
+  .usage(`${chalk.red('[options]')}`)
+  .option('-p, --platformid <platformId>')
+  .option('-a, --address <bankrollerAddress>', 'Bankroller address')
+  .option('-n, --game-name <gameName>', 'Path to upload dapp.logic.js and dapp.manifest.js')
+  .option('-f, --force', 'Force run command not depend enviroment')
+  .action(command => CLI.DApp.unloadGameInBankroller(command))
+  .on('--help', () => {
+    log.info(`
+      Template run:
+
+        dc-cli upload ${chalk.cyan('[options]')}
+
+      Example run:
+
+        dc-cli upload --platformid ${chalk.green('DC_Platform')} --address ${chalk.green('0xf3b7416161E69B4fbF8b7E61a9326F4251ca0a5D')} --game-name ${chalk.green('MyDappGame')}
+      ${chalk.yellow(`
+        If arguments are not passed then cli will
+        ask, leading questions and set needed arguments 
+      `)}
+    `)
+  })
+
 
 program
   .command('deploy')

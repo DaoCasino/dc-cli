@@ -29,7 +29,10 @@ export function changeStartOptionsJSON (options: StartOptions): void {
   }
 }
 
-export async function checkLatestVersion (): Promise<boolean | null> {
+export async function checkLatestVersion (): Promise<{
+  latestVersion: string,
+  targetVersion: string
+} | null> {
   try {
     const checkVersion = await npmCheck(require(config.packageJSON))
     if (checkVersion !== null) {
@@ -48,7 +51,7 @@ export async function checkLatestVersion (): Promise<boolean | null> {
         `)
       }
 
-      return true
+      return { latestVersion, targetVersion }
     } else {
       return null
     }

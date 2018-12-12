@@ -219,7 +219,7 @@ export default class DApp extends Deployer implements DAppInstance {
     }
   }
 
-  async _startLocalENV (
+  private async _startLocalENV (
     startOptions: StartOptions = startConfigInJson
   ): Promise<void> {
     try {
@@ -243,7 +243,7 @@ export default class DApp extends Deployer implements DAppInstance {
     }
   }
 
-  async _startDockerLocalENV (
+  private async _startDockerLocalENV (
     startOptions: StartOptions = startConfigInJson
   ): Promise<void> {
     log.info('comming soon...')

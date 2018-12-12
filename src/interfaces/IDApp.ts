@@ -1,5 +1,6 @@
 import program from 'commander'
 import prompt from 'inquirer'
+import { PingServiceParams } from 'bankroller-core/lib/intefaces'
 import { ProcessManagerInstance } from './IProcessManager'
 import { CLIConfigInterface, QuestionInterface } from './ICLIConfig'
 
@@ -19,15 +20,17 @@ export interface StartOptions {
 
 export interface GameFiles {
   fileName: string
-  fileData: Buffer
+  fileData: string
 }
 
-export interface UploadGameData {
-  platformID: string,
-  gamePath: string,
-  bankrollerAddress: string,
-  gameName: string,
-  gameFiles: null | GameFiles
+export interface UploadGameData extends PingServiceParams {
+  targetGamePath: string,
+  gameDirectoryName: string
+  gameFiles: GameFiles[]
+}
+
+export interface UnloadGameData extends PingServiceParams {
+  gameName: string
 }
 
 export interface MigrationParams {
@@ -52,6 +55,7 @@ export interface StartBankrollerParams {
 export interface DeployerInstance {
   migrateContract: (options: program.Command | MigrationParams) => Promise<string>
   uploadGameToBankroller: (options: program.Command) => Promise<void>
+  unloadGameInBankroller: (options: program.Command) => Promise<void>
   deployGameToIPFS: () => Promise<void>
   publishGame: () => Promise<void>
 }

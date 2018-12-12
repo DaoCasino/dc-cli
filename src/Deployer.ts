@@ -2,30 +2,29 @@ import fs from 'fs'
 import path from 'path'
 import chalk from 'chalk'
 import program from 'commander'
-import ProcessManager from './ProcessManager'
 import * as Utils from './Utils'
 import {
   DeployerInstance,
   InstanceParams,
   UploadGameData,
-  MigrationParams
+  UnloadGameData,
+  MigrationParams,
 } from './interfaces/IDApp'
 import { Logger } from 'dc-logging'
 import { PingService } from 'bankroller-core/lib/dapps/PingService'
-import { ProcessManagerInstance } from './interfaces/IProcessManager'
-import { IpfsTransportProvider } from 'dc-messaging'
+import { IPingService, PingServiceParams, IBankroller } from 'bankroller-core/lib/intefaces'
+import { TransportProviderFactory, ITransportProviderFactory, IMessagingProvider, TransportType } from 'dc-messaging'
 
 const log = new Logger('Deployer')
 
 export default class Deployer implements DeployerInstance {
   protected _params: InstanceParams
-  private _gameUploadData: UploadGameData
-  private _provider: IpfsTransportProvider
-  private _pingService: PingService
+  private _transportProviderFactory: ITransportProviderFactory
+  private _provider: IMessagingProvider
+  private _pingService: IPingService
 
   constructor (params: InstanceParams) {
     this._params = params
-    this._gameUploadData = null
   }
 
   async migrateContract (options: program.Command | MigrationParams) {
@@ -84,44 +83,105 @@ export default class Deployer implements DeployerInstance {
   }
 
   async uploadGameToBankroller (options: any): Promise<void> {
-    this._gameUploadData = {
-      platformID: options.platformid,
-      gamePath: options.gamePath,
-      bankrollerAddress: options.address,
-      gameName: options.nameGame,
-      gameFiles: null
+    let {
+      address: targetBankrollerAddress,
+      gamePath,
+      platformid
+    } = options
+
+    switch (true) {
+      case !platformid:
+        platformid = (await this._params.prompt(
+          this._params.getQuestion('inputPlatformID')
+        )).platformID
+      case !targetBankrollerAddress:
+        targetBankrollerAddress = (await this._params.prompt(
+          this._params.getQuestion('inputBankrollerAddress')
+        )).bankrollerAddress
+      case !gamePath:
+        gamePath = (await this._params.prompt(
+          this._params.getQuestion('inputGamePath')
+        )).gamePath
     }
 
-    // if (!this._gameUploadData.platformID) {
-    //   this._gameUploadData.platformID = (await this._params.prompt(
-    //     this._params.getQuestion('inputPlatformID')
-    //   )).platformID
-    // }
+    const TARGET_GAME_PATH = path.join(process.cwd(), gamePath)
+    const FILE_NAME_TEMPLATE = /dapp[\.\-_](manifest|logic)\.js/
 
-    // if (!this._gameUploadData.bankrollerAddress) {
-    //   this._gameUploadData.bankrollerAddress = (await this._params.prompt(
-    //     this._params.getQuestion('inputBankrollerAddress')
-    //   )).bankrollerAddress
-    // }
-    // TODO: Implement bankroller-node ping service
-
-    if (!this._gameUploadData.gameName) {
-      this._gameUploadData.gameName = (await this._params.prompt(
-        this._params.getQuestion('inputGameName')
-      )).gamename
+    if (!fs.existsSync(TARGET_GAME_PATH)) {
+      throw new Error(chalk.red(`TARGET_GAME_PATH: ${chalk.cyan(TARGET_GAME_PATH)} not exists`))
     }
 
-    if (!this._gameUploadData.gamePath) {
-      this._gameUploadData.gamePath = (await this._params.prompt(
-        this._params.getQuestion('inputGamePath')
-      )).gamePath
-    }
+    const GAME_FILES = fs.readdirSync(TARGET_GAME_PATH)
+      .filter(fileName => (FILE_NAME_TEMPLATE.test(fileName)) && fileName)
+      .map(fileName => {
+        return {
+          fileName,
+          fileData: fs.readFileSync(
+            path.join(TARGET_GAME_PATH,
+            fileName
+          )).toString('base64')
+        }
+      })
     
-    this._uploadBankrollerInDepend()
-    // this._provider = await IpfsTransportProvider.create()
-    // this._pingService = await this._provider.getRemoteInterface(this._gameUploadData.platformID)
-    // this._pingService.on(PingService.EVENT_JOIN, async (data) => this._uploadGame(data))
-    // TODO: Implement bankroller-node ping service
+    if (GAME_FILES.length < 2) {
+      throw new Error(chalk.red(`Not logic game and manifest file in ${chalk.cyan(TARGET_GAME_PATH)}`))
+    }
+
+    try {
+      const GAME_DIRECTORY_NAME = require(path.join(TARGET_GAME_PATH, 'dapp.manifest.js')).slug
+      await this._pingServiceConnect(platformid, async data => {
+        if (data.ethAddress.toLowerCase() === targetBankrollerAddress.toLowerCase()) {
+          const UPLOAD_DATA: UploadGameData = {
+            ...data,
+            gameFiles: GAME_FILES,
+            targetGamePath: TARGET_GAME_PATH,
+            gameDirectoryName: GAME_DIRECTORY_NAME,
+          }
+
+          this._uploadGame(UPLOAD_DATA)
+        }
+      })
+
+      this._pingService.emit(PingService.EVENT_PING, null)     
+    } catch (error) {
+      Utils.exitProgram(process.pid, chalk.red(`${error.message} please try upload again`), 1)
+    }
+  }
+
+  async unloadGameInBankroller(options: any): Promise<void> {
+    let {
+      address: targetBankrollerAddress,
+      gameName,
+      platformid
+    } = options
+
+    switch (true) {
+      case !platformid:
+        platformid = (await this._params.prompt(
+          this._params.getQuestion('inputPlatformID')
+        )).platformID
+      case !targetBankrollerAddress:
+        targetBankrollerAddress = (await this._params.prompt(
+          this._params.getQuestion('inputBankrollerAddress')
+        )).bankrollerAddress
+      case !gameName:
+        gameName = (await this._params.prompt(
+          this._params.getQuestion('inputGameName')
+        )).gamePath
+    }
+
+    try {
+      await this._pingServiceConnect(platformid, async data => {
+        if (data.ethAddress.toLowerCase() === targetBankrollerAddress.toLowerCase()) {
+          const UNLOAD_PARAMS = { ...data, gameName }
+          await this._unloadGame(UNLOAD_PARAMS)
+        }
+      })
+
+      this._pingService.emit(PingService.EVENT_PING, null)     
+    } catch (error) {
+      Utils.exitProgram(process.pid, chalk.red(`${error.message} please try upload again`), 1)
+    }
   }
 
   async deployGameToIPFS () {
@@ -132,68 +192,69 @@ export default class Deployer implements DeployerInstance {
     log.info('comming soon...')
   }
 
-  _uploadBankrollerInDepend() {
-    let gameFiles = []
-    const GAME_FILES_PATH = path.join(process.cwd(), this._gameUploadData.gamePath)
-    const FILE_NAME_TEMPLATE = /dapp[\.\-_](manifest|logic)\.js/
-    const BANKROLLER_NODE_DAPPS = path.join(path.dirname(require.resolve('bankroller-node')), '../data/dapps')
-    const DAPP_PATH = path.join(BANKROLLER_NODE_DAPPS, this._gameUploadData.gameName)
+  private async _pingServiceConnect (
+    platformid: string,
+    handler: (data: PingServiceParams) => Promise<void>
+  ): Promise<void> {
+    try {
+      this._transportProviderFactory = new TransportProviderFactory(TransportType.IPFS)
+      this._provider = await this._transportProviderFactory.create()
+      this._pingService = await this._provider.getRemoteInterface<IPingService>(
+        platformid
+      )
 
-    if (!fs.existsSync(DAPP_PATH)) {
-      fs.mkdirSync(DAPP_PATH)
+      this._pingService.on(PingService.EVENT_PONG, handler)
+      log.info(chalk.green('\nPing service connection estimate!\n'))
+    } catch (error) {
+      throw error
     }
-
-    if (fs.existsSync(GAME_FILES_PATH)) {
-      gameFiles = fs.readdirSync(GAME_FILES_PATH)
-        .filter(fileName => (FILE_NAME_TEMPLATE.test(fileName)) && fileName)
-        .map(fileName => {
-          return { fileName, fileData: fs.readFileSync(path.join(GAME_FILES_PATH, fileName), 'utf-8') }
-        })
-        
-        gameFiles.forEach(file => {
-          const FILE_PATH = path.join(DAPP_PATH, file.fileName)
-          fs.writeFileSync(FILE_PATH, file.fileData, 'utf-8')
-        })
-    }
-
-    log.info(chalk.yellow(`
-      \rYour dapp uploaded to bankroller
-      \rpath to your dapp: ${chalk.cyan(DAPP_PATH)}
-    `))
   }
 
-  async _uploadGame (data) {
-    if (data.ethAddress.toLowerCase() === this._gameUploadData.bankrollerAddress.toLowerCase()) {
-      try {
-        let gameFiles = []
-        const targetGamePath = path.join(process.cwd(), this._gameUploadData.gamePath)
-        const fileNameTemplate = /dapp[\.\-_](manifest|logic)\.js/
+  private async _uploadGame (data: UploadGameData): Promise<void> {
+    const {
+      gameFiles,
+      apiRoomAddress,
+      gameDirectoryName,
+    } = data
 
-        if (fs.existsSync(targetGamePath)) {
-          gameFiles = fs.readdirSync(targetGamePath)
-            .filter(fileName => (fileNameTemplate.test(fileName)) && fileName)
-            .map(fileName => {
-              return {
-                fileName,
-                fileData: fs.readFileSync(path.join(targetGamePath, fileName), 'utf-8')
-              }
-            })
-        }
+    try {
+      const bankrollerInstance = await this._provider.getRemoteInterface<IBankroller>(
+        apiRoomAddress
+      )
+      
+      const uploadGame = await bankrollerInstance.uploadGame({
+        name: gameDirectoryName,
+        files: gameFiles,
+        reload: true
+      })
 
-        const bankrollerInstance: any = await this._provider.getRemoteInterface(data.apiRoomAddress)
-        const uploadGame = await bankrollerInstance.uploadGame({
-          name: this._gameUploadData.gameName,
-          files: gameFiles,
-          reload: true
-        })
-
-        if (uploadGame.status === 'ok') {
-          log.info('Upload game success')
-          Utils.exitProgram(process.pid, false, 0)
-        }
-      } catch (error) {
-        Utils.exitProgram(process.pid, error, 1)
+      if (uploadGame.status === 'ok') {
+        await this._provider.destroy()
+        log.info(chalk.yellow('\nUpload game success, destroy connection please wait...'))
       }
+    } catch (error) {
+      Utils.exitProgram(process.pid, error, 1)
+    }
+  }
+
+  private async _unloadGame(data: UnloadGameData) {
+    const {
+      gameName,
+      apiRoomAddress
+    } = data
+
+    try {
+      const bankrollerInstance = await this._provider.getRemoteInterface<IBankroller>(
+        apiRoomAddress
+      )
+
+      const unloadGame = await bankrollerInstance.unloadGame(gameName)
+      if (unloadGame.status === 'ok') {
+        await this._provider.destroy()
+        log.info(chalk.yellow('\nUnload game success, destroy connection please wait...'))
+      }
+    } catch (error) {
+      throw error
     }
   }
 }
