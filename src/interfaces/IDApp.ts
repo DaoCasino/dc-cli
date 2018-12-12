@@ -23,6 +23,13 @@ export interface GameFiles {
   fileData: string
 }
 
+export interface LoadParams {
+  address: string,
+  gameName?: string
+  gamePath?: string
+  platformid: string
+}
+
 export interface UploadGameData extends PingServiceParams {
   targetGamePath: string,
   gameDirectoryName: string

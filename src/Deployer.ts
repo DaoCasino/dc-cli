@@ -82,7 +82,7 @@ export default class Deployer implements DeployerInstance {
     }
   }
 
-  async uploadGameToBankroller (options: any): Promise<void> {
+  async uploadGameToBankroller (options: program.Command): Promise<void> {
     let {
       address: targetBankrollerAddress,
       gamePath,
@@ -148,7 +148,7 @@ export default class Deployer implements DeployerInstance {
     }
   }
 
-  async unloadGameInBankroller(options: any): Promise<void> {
+  async unloadGameInBankroller(options: program.Command): Promise<void> {
     let {
       address: targetBankrollerAddress,
       gameName,
@@ -233,7 +233,7 @@ export default class Deployer implements DeployerInstance {
         log.info(chalk.yellow('\nUpload game success, destroy connection please wait...'))
       }
     } catch (error) {
-      Utils.exitProgram(process.pid, error, 1)
+      Utils.exitProgram(process.pid, chalk.red(`${error.message} please try upload again`), 1)
     }
   }
 
@@ -254,7 +254,7 @@ export default class Deployer implements DeployerInstance {
         log.info(chalk.yellow('\nUnload game success, destroy connection please wait...'))
       }
     } catch (error) {
-      throw error
+      Utils.exitProgram(process.pid, chalk.red(`${error.message} please try upload again`), 1)
     }
   }
 }
