@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const Utils = require('./Utils')
 const { PingService } = require('bankroller-core/lib/dapps/PingService')
-const { IpfsTransportProvider } = require('dc-messaging')
+const { IpfsTransportProvider } = require('@daocasino/messaging')
 
 module.exports = class Deployer {
   constructor (params) {
