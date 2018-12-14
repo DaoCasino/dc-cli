@@ -91,8 +91,6 @@ program
   .description(`${chalk.green(commands['start'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
   // .option('-d, --docker', 'Start env in docker containers')
-  .option('-n, --network <network>', 'Set blockchain network for start env')
-  .option('-f, --force', 'Force run command not depend enviroment')
   .option('-s, --stdmigrate', 'Start protocol with standart dc-protocol contracts')
   .action(command => CLI.DApp.start(command))
 
@@ -134,7 +132,6 @@ program
   .command('stop')
   .description(`${chalk.green(commands['stop'].description.trim())} `)
   .usage(`${chalk.red('[options]')}`)
-  .option('-f, --force', 'Force run command not depend enviroment')
   .action(() => CLI.DApp.stop())
 
 program
@@ -144,7 +141,6 @@ program
   .option('-b, --bankroller', 'View bankroller logs')
   .option('-t, --testrpc', 'View testrpc logs')
   // .option('-d, --docker', 'Start docker logs')
-  .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.viewLogs(command))
 
 program
@@ -162,7 +158,6 @@ program
   .option('-p, --platformid <platformId>')
   .option('-a, --address <bankrollerAddress>', 'Bankroller address')
   .option('-g, --game-path <gamePath>', 'Path to upload dapp.logic.js and dapp.manifest.js')
-  .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.uploadGameToBankroller(command))
   .on('--help', () => {
     log.info(`
@@ -187,7 +182,6 @@ program
   .option('-p, --platformid <platformId>')
   .option('-a, --address <bankrollerAddress>', 'Bankroller address')
   .option('-n, --game-name <gameName>', 'Path to upload dapp.logic.js and dapp.manifest.js')
-  .option('-f, --force', 'Force run command not depend enviroment')
   .action(command => CLI.DApp.unloadGameInBankroller(command))
   .on('--help', () => {
     log.info(`

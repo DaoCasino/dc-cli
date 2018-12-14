@@ -109,14 +109,14 @@ export default class CLIInstance implements CLIInstanceInterface {
         fs.mkdirSync(targetDirectory)
       }
 
-      await this._downloadProject(template, targetDirectory)
-      await this._installProject(packageManager, targetDirectory)
+      await this.downloadProject(template, targetDirectory)
+      await this.installProject(packageManager, targetDirectory)
     } catch (error) {
       Utils.exitProgram(process.pid, error)
     }
   }
 
-  async _downloadProject (
+  private async downloadProject (
     templateName: string,
     targetDirectory: string
   ): Promise<boolean> {
@@ -139,7 +139,7 @@ export default class CLIInstance implements CLIInstanceInterface {
     }
   }
 
-  async _installProject (
+  private async installProject (
     packageManager: string,
     targetDirectory: string
   ): Promise<boolean> {

@@ -22,6 +22,7 @@ export interface TemplateInterface {
 export interface CLIConfigInterface {
   commands: CommandInterface[]
   templates: TemplateInterface[]
+  networksName: string[]
   bankrollerLocalPrivateKey: string
   isWin: boolean
   ASCIIColor: RegExp

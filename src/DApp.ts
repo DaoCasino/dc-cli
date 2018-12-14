@@ -30,7 +30,7 @@ export default class DApp extends Deployer implements DAppInstance {
   async start (options: program.Command): Promise<void> {
     const startOptions = {
       useDocker: options.docker,
-      blockchainNetwork: options.network || 'local',
+      blockchainNetwork: 'local',
       stdmigrate: options.stdmigrate || false
     }
 
@@ -45,8 +45,8 @@ export default class DApp extends Deployer implements DAppInstance {
 
     try {
       (!startOptions.useDocker)
-        ? this._startLocalENV(startOptions)
-        : this._startDockerLocalENV(startOptions)
+        ? this.startLocalENV(startOptions)
+        : this.startDockerLocalENV(startOptions)
     } catch (error) {
       Utils.exitProgram(process.pid, error, 1)
     }
@@ -219,7 +219,7 @@ export default class DApp extends Deployer implements DAppInstance {
     }
   }
 
-  private async _startLocalENV (
+  private async startLocalENV (
     startOptions: StartOptions = startConfigInJson
   ): Promise<void> {
     try {
@@ -243,7 +243,7 @@ export default class DApp extends Deployer implements DAppInstance {
     }
   }
 
-  private async _startDockerLocalENV (
+  private async startDockerLocalENV (
     startOptions: StartOptions = startConfigInJson
   ): Promise<void> {
     log.info('comming soon...')

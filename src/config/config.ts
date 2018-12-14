@@ -24,7 +24,8 @@ const config: CLIConfigInterface = {
       doc: 'https://github.com/DaoCasino/sdk'
     }
   ],
-
+  
+  networksName: ['local', 'ropsten', 'rinkeby', 'kovan', 'minenet'],
   bankrollerLocalPrivateKey: '0xae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f', // '0x1882c2a6d0df1210d643f82f69d0bdfa0e2e1eaa963384826a4f24d5b5529e10',
 
   isWin           : /^win/.test(process.platform),

@@ -138,7 +138,7 @@ export default class Deployer implements DeployerInstance {
             gameDirectoryName: GAME_DIRECTORY_NAME,
           }
 
-          this._uploadGame(UPLOAD_DATA)
+          this.uploadGame(UPLOAD_DATA)
         }
       })
 
@@ -174,7 +174,7 @@ export default class Deployer implements DeployerInstance {
       await this._pingServiceConnect(platformid, async data => {
         if (data.ethAddress.toLowerCase() === targetBankrollerAddress.toLowerCase()) {
           const UNLOAD_PARAMS = { ...data, gameName }
-          await this._unloadGame(UNLOAD_PARAMS)
+          await this.unloadGame(UNLOAD_PARAMS)
         }
       })
 
@@ -210,7 +210,7 @@ export default class Deployer implements DeployerInstance {
     }
   }
 
-  private async _uploadGame (data: UploadGameData): Promise<void> {
+  private async uploadGame (data: UploadGameData): Promise<void> {
     const {
       gameFiles,
       apiRoomAddress,
@@ -237,7 +237,7 @@ export default class Deployer implements DeployerInstance {
     }
   }
 
-  private async _unloadGame(data: UnloadGameData) {
+  private async unloadGame(data: UnloadGameData) {
     const {
       gameName,
       apiRoomAddress
