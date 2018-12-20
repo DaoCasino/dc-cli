@@ -63,7 +63,7 @@ module.exports = class DApp extends Deployer {
   }
 
   async startBankrollerWithNetwork (options) {
-    const bankrollerStartScript = require.resolve('bankroller-node')
+    const bankrollerStartScript = require.resolve('@daocasino/bankroller-node')
     let startInBackground = options.background
     let blockchainNetwork = options.network
     let bankrollerPrivatekey = options.privatekey
@@ -134,11 +134,11 @@ module.exports = class DApp extends Deployer {
   async _startLocalENV (startOptions = startOptionsConfig) {
     try {
       await Utils.startPM2Service({
-        cwd: path.dirname(require.resolve('dc-protocol')),
+        cwd: path.dirname(require.resolve('@daocasino//dc-protocol')),
         name: 'dc_protocol',
         env: { 'no_db': true },
         exec_mode: 'fork',
-        script: require.resolve('dc-protocol/src/testrpc.server.js')
+        script: require.resolve('@daocasino//dc-protocol/src/testrpc.server.js')
       })
 
       const migrateToLocalNetwork = await this.migrateContract({
