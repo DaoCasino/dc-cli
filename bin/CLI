@@ -5,4 +5,8 @@
 // Due to an obscure Mac bug, do not start this title with any symbol.
 process.title = 'dc-cli'
 
-require('../src/commands/index')
+process.env.DEBUG = `${process.title}`
+process.env.DEBUG_COLORS = false
+process.env.DEBUG_HIDE_DATE = false
+
+require('../lib/commands/index')
