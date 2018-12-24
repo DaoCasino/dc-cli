@@ -4,7 +4,7 @@ import program from 'commander'
 import CLIInstance from '../index'
 import getQuestion from '../config/questions'
 import * as Utils from '../Utils'
-import { Logger } from 'dc-logging'
+import { Logger } from '@daocasino/dc-logging'
 import { CommandInterface } from '../interfaces/ICLIConfig'
 
 const commands = {}

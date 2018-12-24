@@ -10,10 +10,15 @@ import {
   UnloadGameData,
   MigrationParams,
 } from './interfaces/IDApp'
-import { Logger } from 'dc-logging'
-import { PingService } from 'bankroller-core/lib/dapps/PingService'
-import { IPingService, PingServiceParams, IBankroller } from 'bankroller-core/lib/intefaces'
-import { TransportProviderFactory, ITransportProviderFactory, IMessagingProvider, TransportType } from 'dc-messaging'
+import { Logger } from '@daocasino/dc-logging'
+import { PingService } from '@daocasino/bankroller-core/lib/dapps/PingService'
+import { IPingService, PingServiceParams, IBankroller } from '@daocasino/bankroller-core/lib/intefaces'
+import {
+  TransportProviderFactory,
+  ITransportProviderFactory,
+  IMessagingProvider,
+  TransportType
+} from '@daocasino/dc-messaging'
 
 const log = new Logger('Deployer')
 
@@ -66,7 +71,7 @@ export default class Deployer implements DeployerInstance {
 
       const contractMigrate = await this._params.processManager.startChildProcess(
         `node CLI migrate --network ${network}`,
-        path.join(path.dirname(require.resolve('dc-protocol')), '/bin'),
+        path.join(path.dirname(require.resolve('@daocasino/dc-protocol')), '/bin'),
         {
           MNEMONIC: mnemonic,
           CONTRACTS_PATH: contractsPath
@@ -229,8 +234,8 @@ export default class Deployer implements DeployerInstance {
       })
 
       if (uploadGame.status === 'ok') {
-        await this._provider.destroy()
         log.info(chalk.yellow('\nUpload game success, destroy connection please wait...'))
+        await this._provider.destroy()
       }
     } catch (error) {
       Utils.exitProgram(process.pid, chalk.red(`${error.message} please try upload again`), 1)

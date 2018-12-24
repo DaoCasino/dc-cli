@@ -12,7 +12,7 @@ import {
   StartTestRPCParams,
   StartBankrollerParams
 } from './interfaces/IDApp'
-import { Logger } from 'dc-logging'
+import { Logger } from '@daocasino/dc-logging'
 import { CLIConfigInterface } from './interfaces/ICLIConfig'
 
 const log = new Logger('DApp')
@@ -127,13 +127,13 @@ export default class DApp extends Deployer implements DAppInstance {
     if (background) {
       await this._params.processManager.listenExitPM2service()
       const testrpcUp = await this._params.processManager.startPM2Service({
-        cwd: path.dirname(require.resolve('dc-protocol')),
+        cwd: path.dirname(require.resolve('@daocasino/dc-protocol')),
         name: 'dc-protocol',
         env: START_ENV,
         wait_ready: true,
         listen_timeout: 3000,
         exec_mode: 'fork',
-        script: require.resolve('dc-protocol/src/testrpc.server.js')
+        script: require.resolve('@daocasino/dc-protocol/src/testrpc.server.js')
       })
 
       log.info(`\n
@@ -144,7 +144,7 @@ export default class DApp extends Deployer implements DAppInstance {
       `)
     } else {
       this._params.processManager.startChildProcess(
-        `node ${require.resolve('dc-protocol/src/testrpc.server.js')}`,
+        `node ${require.resolve('@daocasino/dc-protocol/src/testrpc.server.js')}`,
         path.dirname(require.resolve('dc-protocol')),
         START_ENV
       )
@@ -152,7 +152,7 @@ export default class DApp extends Deployer implements DAppInstance {
   }
 
   async startBankrollerWithNetwork (options: program.Command | StartBankrollerParams): Promise<void> {
-    const bankrollerStartScript = require.resolve('bankroller-node')
+    const bankrollerStartScript = require.resolve('@daocasino/bankroller-node')
     let startInBackground = options.background
     let blockchainNetwork = options.network
     let bankrollerPrivatekey = options.privatekey

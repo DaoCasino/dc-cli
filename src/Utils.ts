@@ -5,7 +5,7 @@ import config from './config/config'
 import npmCheck from 'update-check'
 import startConfigInJson from './config/startOptions.json'
 
-import { Logger } from 'dc-logging'
+import { Logger } from '@daocasino/dc-logging'
 import { machineIdSync } from 'node-machine-id'
 import { StartOptions } from './interfaces/IDApp'
 

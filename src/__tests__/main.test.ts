@@ -6,7 +6,7 @@ import config from '../config/config'
 
 import { exec } from 'child_process'
 import { expect } from 'chai'
-import { Logger } from 'dc-logging'
+import { Logger } from '@daocasino/dc-logging'
 import { Promise } from 'bluebird'
 
 const CLIStart = `node ${path.join(__dirname, '../../bin/CLI')}`

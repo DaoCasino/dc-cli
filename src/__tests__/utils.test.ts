@@ -4,7 +4,7 @@ import rimraf from 'rimraf'
 import * as Utils from '../Utils'
 import _config from '../config/config'
 
-import { Logger } from 'dc-logging'
+import { Logger } from '@daocasino/dc-logging'
 import { expect } from 'chai'
 
 const log = new Logger('Test:')

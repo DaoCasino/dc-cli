@@ -1,6 +1,6 @@
 import program from 'commander'
 import prompt from 'inquirer'
-import { PingServiceParams } from 'bankroller-core/lib/intefaces'
+import { PingServiceParams } from '@daocasino/bankroller-core/lib/intefaces'
 import { ProcessManagerInstance } from './IProcessManager'
 import { CLIConfigInterface, QuestionInterface } from './ICLIConfig'
 

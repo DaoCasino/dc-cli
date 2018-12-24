@@ -9,7 +9,7 @@ import ProcessManager from './ProcessManager'
 import * as Utils from './Utils'
 
 import { spawn } from 'child_process'
-import { Logger } from 'dc-logging'
+import { Logger } from '@daocasino/dc-logging'
 import { DAppInstance } from './interfaces/IDApp'
 import { ProcessManagerInstance } from './interfaces/IProcessManager'
 import { CLIParams, CLIInstanceInterface } from './interfaces/ICLIInstance'

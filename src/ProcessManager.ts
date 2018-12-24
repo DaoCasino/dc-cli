@@ -2,7 +2,7 @@ import pm2 from 'pm2'
 import chalk from 'chalk'
 import * as Utils from './Utils'
 import { exec } from 'child_process'
-import { Logger } from 'dc-logging'
+import { Logger } from '@daocasino/dc-logging'
 import { Promise } from 'bluebird'
 import { ServiceConfig, ProcessLogs, ProcessManagerInstance } from './interfaces/IProcessManager'
 
