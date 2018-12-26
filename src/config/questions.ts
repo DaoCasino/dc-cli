@@ -1,15 +1,17 @@
-const Utils = require('../Utils')
-const chalk = require('chalk')
-const _config = require('./config')
+import path from 'path'
+import chalk from 'chalk'
+import config from './config'
+import * as Utils from '../Utils'
+import { QuestionInterface  } from '../interfaces/ICLIConfig'
 
-module.exports = function (name) {
+export default function getQuestion (name): QuestionInterface {
   const questions = {
     viewMenu: {
       name: 'command',
       message: `You did not enter a command or enter a nonexistent, What do you want to do?: `,
       type: 'list',
       pageSize: 15,
-      choices: _config.commands
+      choices: config.commands
         .filter(command => !((Utils.checkENV() && (command.name === 'list' || command.name === 'create'))))
         .map(command => {
           if (!Utils.checkENV() && command.env) {
@@ -24,7 +26,7 @@ module.exports = function (name) {
       type: 'list',
       name: 'template',
       message: 'Select the standart template?: ',
-      choices: _config.templates.map(template => template.name)
+      choices: config.templates.map(template => template.name)
     },
 
     directoryInput: {
@@ -76,7 +78,7 @@ module.exports = function (name) {
     startInBackground: {
       type: 'confirm',
       name: 'startInBackground',
-      message: 'Start bankroller in background',
+      message: 'Start process in background',
       default: false
     },
 
@@ -102,6 +104,31 @@ module.exports = function (name) {
       type: 'input',
       name: 'gamename',
       message: 'Input name for game'
+    },
+
+    inputContractsPath: {
+      type: 'input',
+      name: 'contractsPath',
+      message: `not contracts in ${path.join(process.cwd(), './dapp/contracts')} directory, please input correct path to protocol contracts`
+    },
+
+    inputTestRPCHost: {
+      type: 'input',
+      name: 'testrpcHost',
+      message: 'How use host for ganache?'
+    },
+
+    inputTestRPCPort: {
+      type: 'input',
+      name: 'testrpcPort',
+      message: 'How use port for ganache?'
+    },
+
+    useTestRPCDB: {
+      type: 'confirm',
+      name: 'nodb',
+      message: 'Use DB in ganache?',
+      default: true
     }
   }
 

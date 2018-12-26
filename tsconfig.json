@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "resolveJsonModule": true,
+    "outDir": "lib",
+    "rootDir": "src",
+    "types" : ["node", "mocha"]
+  },
+  
+  "include": ["./src/**/*", "./src/config/*.json"],
+  "exclude": [
+    "node_modules/**/*",
+    "src/__test__/**/*",
+    "lib/**/*"
+  ],
+  
+  "references": [
+    { "path": "../bankroller-core" },
+    { "path": "../dc-messaging" }
+  ]
+}
