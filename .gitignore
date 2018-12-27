@@ -3,9 +3,6 @@ node_modules
 my-dapp
 lib
 
-# start options
-src/config/startOptions.json
-
 # lock
 package-lock.json
 yarn.lock

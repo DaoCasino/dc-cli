@@ -19,6 +19,10 @@ export function changeStartOptionsJSON (options: StartOptions): StartOptions {
     throw new Error(chalk.red(`Network with name ${chalk.cyan(options.blockchainNetwork)} does not exist`))
   }
 
+  if (!fs.existsSync(config.startOptions)) {
+    fs.writeFileSync(config.startOptions, '')
+  }
+
   if (
     startConfigInJson.useDocker !== options.useDocker ||
     startConfigInJson.blockchainNetwork !== options.blockchainNetwork
