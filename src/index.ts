@@ -35,6 +35,10 @@ export default class CLIInstance implements CLIInstanceInterface {
     this._getQuestion = this._params.getQuestion
     this._processManager = new ProcessManager
 
+    if (!fs.existsSync(this._config.startOptions)) {
+      fs.writeFileSync(this._config.startOptions, JSON.stringify({}))
+    }
+
     this.DApp = new DApp({
       prompt: this._prompt,
       config: this._config,
