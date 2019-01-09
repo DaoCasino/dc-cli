@@ -14,10 +14,10 @@ export const checkENV = (): boolean => !(!fs.existsSync(config.projectsENV))
 export const UUIDGenerate = (): string => machineIdSync(true)
 
 export function changeStartOptionsJSON (options: StartOptions): StartOptions {
-  if (!fs.existsSync(this._config.startOptions)) {
-    fs.writeFileSync(this._config.startOptions, JSON.stringify({}))
+  if (!fs.existsSync(config.startOptions)) {
+    fs.writeFileSync(config.startOptions, JSON.stringify({}))
   }
-  
+
   const startConfigJSON = require(config.startOptions)
   if (!config.networksName.includes(options.blockchainNetwork)) {
     throw new Error(chalk.red(`Network with name ${chalk.cyan(options.blockchainNetwork)} does not exist`))
