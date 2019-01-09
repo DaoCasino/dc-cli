@@ -1,13 +1,12 @@
 import fs from 'fs'
-import { ncp } from 'ncp'
 import chalk from 'chalk'
 import config from './config/config'
 import npmCheck from 'update-check'
-import startConfigInJson from './config/startOptions.json'
 
+import { ncp } from 'ncp'
 import { Logger } from '@daocasino/dc-logging'
-import { machineIdSync } from 'node-machine-id'
 import { StartOptions } from './interfaces/IDApp'
+import { machineIdSync } from 'node-machine-id'
 
 const log = new Logger('Utils')
 export const sudo = (): string => (typeof process.env.SUDO_UID !== 'undefined') ? 'sudo -E' : ''
@@ -15,13 +14,18 @@ export const checkENV = (): boolean => !(!fs.existsSync(config.projectsENV))
 export const UUIDGenerate = (): string => machineIdSync(true)
 
 export function changeStartOptionsJSON (options: StartOptions): StartOptions {
+  if (!fs.existsSync(this._config.startOptions)) {
+    fs.writeFileSync(this._config.startOptions, JSON.stringify({}))
+  }
+  
+  const startConfigJSON = require(config.startOptions)
   if (!config.networksName.includes(options.blockchainNetwork)) {
     throw new Error(chalk.red(`Network with name ${chalk.cyan(options.blockchainNetwork)} does not exist`))
   }
 
   if (
-    startConfigInJson.useDocker !== options.useDocker ||
-    startConfigInJson.blockchainNetwork !== options.blockchainNetwork
+    startConfigJSON.useDocker !== options.useDocker ||
+    startConfigJSON.blockchainNetwork !== options.blockchainNetwork
   ) {
     const openFile = fs.openSync(config.startOptions, 'w')
     fs.writeSync(openFile, JSON.stringify(options, null, ' '), 0, 'utf-8')
@@ -30,7 +34,7 @@ export function changeStartOptionsJSON (options: StartOptions): StartOptions {
     return options
   }
 
-  return startConfigInJson
+  return startConfigJSON
 }
 
 export async function checkLatestVersion (): Promise<{
@@ -97,7 +101,7 @@ export function recursiveCopyDirectory (
     ncp(
       targetInputPath,
       targetOutputPath,
-      (error) => {
+      error => {
         if (error) reject(new Error(error[0].message))
         resolve()
       }
