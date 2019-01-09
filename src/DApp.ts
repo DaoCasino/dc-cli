@@ -3,7 +3,6 @@ import chalk from 'chalk'
 import config from './config/config'
 import Deployer from './Deployer'
 import program from 'commander'
-import startConfigInJson from './config/startOptions.json'
 import * as Utils from './Utils'
 import {
   DAppInstance,
@@ -54,7 +53,7 @@ export default class DApp extends Deployer implements DAppInstance {
 
   async stop (): Promise<void> {
     try {
-      if (!startConfigInJson.useDocker) {
+      if (!require(this._config.startOptions).useDocker) {
         await this._params.processManager.deletePM2Service('all')
       } else {
         await this._params.processManager.startChildProcess(
@@ -84,7 +83,7 @@ export default class DApp extends Deployer implements DAppInstance {
         )).targetLog
     }
 
-    if (!startConfigInJson.useDocker) {
+    if (!require(this._config.startOptions).useDocker) {
       this._params.processManager.startChildProcess(
         `npm run logs:pm2:${targetLog}`,
         path.join(__dirname, '../')
@@ -145,7 +144,7 @@ export default class DApp extends Deployer implements DAppInstance {
     } else {
       this._params.processManager.startChildProcess(
         `node ${require.resolve('@daocasino/dc-protocol/src/testrpc.server.js')}`,
-        path.dirname(require.resolve('dc-protocol')),
+        path.dirname(require.resolve('@daocasino/dc-protocol')),
         START_ENV
       )
     }
@@ -220,7 +219,7 @@ export default class DApp extends Deployer implements DAppInstance {
   }
 
   private async startLocalENV (
-    startOptions: StartOptions = startConfigInJson
+    startOptions: StartOptions = require(this._config.startOptions)
   ): Promise<void> {
     try {
       await this.startTestRPC({ host: '0.0.0.0', port: 8545, nodb: true, background: true })
@@ -244,7 +243,7 @@ export default class DApp extends Deployer implements DAppInstance {
   }
 
   private async startDockerLocalENV (
-    startOptions: StartOptions = startConfigInJson
+    startOptions: StartOptions = require(this._config.startOptions)
   ): Promise<void> {
     log.info('comming soon...')
     // TODO: Implement
