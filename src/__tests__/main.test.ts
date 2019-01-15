@@ -1,16 +1,13 @@
 import fs from 'fs'
 import pm2 from 'pm2'
 import path from 'path'
-import chalk from 'chalk'
 import config from '../config/config'
 
 import { exec } from 'child_process'
 import { expect } from 'chai'
-import { Logger } from '@daocasino/dc-logging'
 import { Promise } from 'bluebird'
 
 const CLIStart = `node ${path.join(__dirname, '../../bin/CLI')}`
-const log = new Logger('Test:')
 
 const pm2Promise = Promise.promisifyAll(pm2)
 
