@@ -12,7 +12,7 @@ DC-CLI is a command line wizard designed to smoothly download and deploy DAO.Cas
 # Prerequisites:
 To use dc-cli, you need:
 * one of the recent [node.js](https://nodejs.org/en/download/) versions (10 or newer)
-* Bash Terminal (if you are using Windows, see here for more details https://github.com/DaoCasino/Documentation/blob/master/2.%20Developer%20Sandbox/2.1.%20Development%20Stack.md)
+* Bash Terminal (if you are using Windows, see here for more details https://github.com/DaoCasino/Documentation/)
 
 A developer is expected to be familiar with Solidity to edit the game smart contract.
 
@@ -22,7 +22,7 @@ Note that the whole solution has been successfully tested on .nix OS's and Mac O
 To install DC-CLI, call:
 
 ```
- npm i -g dc-cli
+ npm i -g @daocasino/dc-cli
 ```
 
 For more details, navigate to the relevant documentation section: https://github.com/DaoCasino/Documentation/blob/master/2.%20Developer%20Sandbox/2.2.%20DC-CLI%20and%20Dev%20Environment.md
