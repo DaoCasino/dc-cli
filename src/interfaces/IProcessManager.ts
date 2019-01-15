@@ -21,7 +21,6 @@ export interface ProcessLogs {
 
 export interface ProcessManagerInstance {
   listenExitPM2service: () => Promise<void>
-  tornOffExitListenPM2Service: () => Promise<void>
   startPM2Service: (serviceConfig: ServiceConfig) => Promise<{ status: string }> 
   deletePM2Service (name: string): Promise<void>
   startChildProcess (
