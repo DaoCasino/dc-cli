@@ -1,6 +1,6 @@
 {
   "name": "@daocasino/dc-cli",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Command line interface for DC protocol",
   "author": "Dao Casino",
   "preferGlobal": true,
@@ -47,9 +47,9 @@
     "logs:docker:bankroller": ""
   },
   "dependencies": {
-    "@daocasino/bankroller-node": "^0.2.5",
-    "@daocasino/dc-messaging": "^0.2.5",
-    "@daocasino/dc-protocol": "^0.2.5",
+    "@daocasino/bankroller-node": "^0.2.6",
+    "@daocasino/dc-messaging": "^0.2.6",
+    "@daocasino/dc-protocol": "^0.2.6",
     "chalk": "^2.4.1",
     "commander": "^2.16.0",
     "download": "^7.1.0",
