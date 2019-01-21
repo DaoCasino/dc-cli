@@ -1,6 +1,5 @@
 import fs from 'fs'
 import path from 'path'
-import rimraf from 'rimraf'
 import * as Utils from '../Utils'
 import _config from '../config/config'
 
