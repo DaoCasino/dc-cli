@@ -44,8 +44,8 @@ export default class DApp extends Deployer implements DAppInstance {
 
     try {
       (!startOptions.useDocker)
-        ? this.startLocalENV(startOptions)
-        : this.startDockerLocalENV(startOptions)
+        ? await this.startLocalENV(startOptions)
+        : await this.startDockerLocalENV(startOptions)
     } catch (error) {
       Utils.exitProgram(process.pid, error, 1)
     }
