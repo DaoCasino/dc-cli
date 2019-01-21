@@ -28,11 +28,6 @@
     "dcdapp",
     "dao-casino"
   ],
-  "husky": {
-    "hooks": {
-      "pre-push": "npm run lint"
-    }
-  },
   "scripts": {
     "check_update": "ncu bankroller-core dc-protocol dc-messaging -a",
     "lint": "eslint ./lib ./bin",
@@ -71,7 +66,6 @@
     "eslint-plugin-promise": "^3.6.0",
     "eslint-plugin-standard": "^3.0.1",
     "fs-extra": "^7.0.1",
-    "husky": "^1.0.0-rc.13",
     "mocha": "^5.2.0",
     "npm-check-updates": "^2.14.2",
     "ts-node": "^7.0.1"
