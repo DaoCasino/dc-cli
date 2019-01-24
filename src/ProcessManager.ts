@@ -9,11 +9,11 @@ import { ServiceConfig, ProcessLogs, ProcessManagerInstance } from './interfaces
 const log = new Logger('ProcessManager:')
 
 export default class ProcessManager implements ProcessManagerInstance {
-  private _logs: ProcessLogs
-  private _PromisePm2Api: Promise.promisifyAll
+  private logs: ProcessLogs
+  private PromisePm2Api: Promise.promisifyAll
   constructor() {
-    this._PromisePm2Api = Promise.promisifyAll(pm2)
-    this._logs = { error: [], info: [] }
+    this.PromisePm2Api = Promise.promisifyAll(pm2)
+    this.logs = { error: [], info: [] }
   }
 
   async startChildProcess (
@@ -49,27 +49,35 @@ export default class ProcessManager implements ProcessManagerInstance {
     })  
   }
 
-  async listenExitPM2service(): Promise<void> {  
-    const pm2EventBus = await this._PromisePm2Api.launchBusAsync()
-    pm2EventBus.on('log:err', data => this._logs.error.push(data.data))
-    pm2EventBus.on('process:event', this._exitHandler)
+  async listenExitPM2service(): Promise<void> {
+    try {
+      const pm2EventBus = await this.PromisePm2Api.launchBusAsync()
+      pm2EventBus.on('log:err', errorData => this.logs.error.push(errorData.data))
+      pm2EventBus.on('process:event', this.exitHandler.bind(this))
+    } catch (error) {
+      throw error
+    }
   }
 
-  async tornOffExitListenPM2Service(): Promise<void> {
-    const pm2EventBus = await this._PromisePm2Api.launchBusAsync()
-    pm2EventBus.off('log:err', data => this._logs.error.push(data.data))
-    pm2EventBus.off('process:event', this._exitHandler)
+  private async tornOffExitListenPM2Service(): Promise<void> {
+    try {
+      const pm2EventBus = await this.PromisePm2Api.launchBusAsync()
+      pm2EventBus.off('log:err', errorData => this.logs.error.push(errorData.data))
+      pm2EventBus.off('process:event', this.exitHandler.bind(this))
+    } catch (error) {
+      throw error
+    }
   }
 
   async startPM2Service (
     serviceConfig: ServiceConfig
   ): Promise<{ status: string }> {
     try {
-      await this._PromisePm2Api.connectAsync()
-      const pm2Process = await this._PromisePm2Api.startAsync(serviceConfig)
+      await this.PromisePm2Api.connectAsync()
+      const pm2Process = await this.PromisePm2Api.startAsync(serviceConfig)
       
       if (pm2Process.length > 0) {
-        await this._PromisePm2Api.disconnectAsync() 
+        await this.PromisePm2Api.disconnectAsync() 
         return pm2Process[0].pm2_env
       }
     } catch (error) {
@@ -81,24 +89,30 @@ export default class ProcessManager implements ProcessManagerInstance {
     name: string
   ): Promise<void> {
     try {
-      await this._PromisePm2Api.deleteAsync(name)
-      await this._PromisePm2Api.disconnectAsync()
+      await this.PromisePm2Api.deleteAsync(name)
+      await this.PromisePm2Api.disconnectAsync()
     } catch (error) {
       throw error
     }
   }
 
-  async _exitHandler(data) {
-    if (data.event === 'exit') {
-      const errorMessage = chalk.yellow(`
-        \rprocess with name ${chalk.cyan(data.process.name)}
-        \rclosed with error error message:
-        \r${chalk.red(this._logs.error.join('\n'))}
-      `)
+  private async exitHandler(errorData) {
+    try {
+      if (errorData.event === 'exit') {
+        const { process: invalidProccess } = errorData
+        const errorLogParse = this.logs.error.join('\n')
+        const errorMessage = chalk.yellow(`
+          \rprocess with name ${chalk.cyan(invalidProccess.name)}
+          \rclosed with error error message:
+          \r${chalk.red(errorLogParse)}
+        `)
 
-      await this.deletePM2Service('all')
-      await this.tornOffExitListenPM2Service()
-      Utils.exitProgram(process.pid, errorMessage, 1)
+        await this.deletePM2Service('all')
+        await this.tornOffExitListenPM2Service()
+        Utils.exitProgram(process.pid, errorMessage, 1)
+      }
+    } catch (error) {
+      throw error
     }
   }
 } 

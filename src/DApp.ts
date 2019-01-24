@@ -3,7 +3,6 @@ import chalk from 'chalk'
 import config from './config/config'
 import Deployer from './Deployer'
 import program from 'commander'
-import startConfigInJson from './config/startOptions.json'
 import * as Utils from './Utils'
 import {
   DAppInstance,
@@ -45,8 +44,8 @@ export default class DApp extends Deployer implements DAppInstance {
 
     try {
       (!startOptions.useDocker)
-        ? this.startLocalENV(startOptions)
-        : this.startDockerLocalENV(startOptions)
+        ? await this.startLocalENV(startOptions)
+        : await this.startDockerLocalENV(startOptions)
     } catch (error) {
       Utils.exitProgram(process.pid, error, 1)
     }
@@ -54,7 +53,7 @@ export default class DApp extends Deployer implements DAppInstance {
 
   async stop (): Promise<void> {
     try {
-      if (!startConfigInJson.useDocker) {
+      if (!require(this._config.startOptions).useDocker) {
         await this._params.processManager.deletePM2Service('all')
       } else {
         await this._params.processManager.startChildProcess(
@@ -84,7 +83,7 @@ export default class DApp extends Deployer implements DAppInstance {
         )).targetLog
     }
 
-    if (!startConfigInJson.useDocker) {
+    if (!require(this._config.startOptions).useDocker) {
       this._params.processManager.startChildProcess(
         `npm run logs:pm2:${targetLog}`,
         path.join(__dirname, '../')
@@ -99,55 +98,59 @@ export default class DApp extends Deployer implements DAppInstance {
 
   async startTestRPC (options: program.Command | StartTestRPCParams): Promise<void> {
     let { host, port, nodb, background } = options
-    switch (true) {
-      case !host:
-        host = (await this._params.prompt(
-          this._params.getQuestion('inputTestRPCHost')
-        )).testrpcHost
-      case !port:
-        port = (await this._params.prompt(
-          this._params.getQuestion('inputTestRPCPort')
-        )).testrpcPort
-      case !nodb:
-        nodb = !(await this._params.prompt(
-          this._params.getQuestion('useTestRPCDB')
-        )).nodb
-      case !background:
-        background = (await this._params.prompt(
-          this._params.getQuestion('startInBackground')
-        )).startInBackground
-    }
-
-    const START_ENV = {
-      'hostname': host,
-      'port': port,
-      'no_db': nodb || false
-    }
-
-    if (background) {
-      await this._params.processManager.listenExitPM2service()
-      const testrpcUp = await this._params.processManager.startPM2Service({
-        cwd: path.dirname(require.resolve('@daocasino/dc-protocol')),
-        name: 'dc-protocol',
-        env: START_ENV,
-        wait_ready: true,
-        listen_timeout: 3000,
-        exec_mode: 'fork',
-        script: require.resolve('@daocasino/dc-protocol/src/testrpc.server.js')
-      })
-
-      log.info(`\n
-        \rtestrpc start in background with pm2 status: ${chalk.green(testrpcUp.status)}
-        \rfor show logs ganache testrpc please run 
-        \r${chalk.green('dc-cli logs --testrpc')} or ${chalk.green('pm2 logs dc-protocol')}
-        \rfor stop process need run ${chalk.green('dc-cli stop')}\n
-      `)
-    } else {
-      this._params.processManager.startChildProcess(
-        `node ${require.resolve('@daocasino/dc-protocol/src/testrpc.server.js')}`,
-        path.dirname(require.resolve('dc-protocol')),
-        START_ENV
-      )
+    try {
+      switch (true) {
+        case !host:
+          host = (await this._params.prompt(
+            this._params.getQuestion('inputTestRPCHost')
+          )).testrpcHost
+        case !port:
+          port = (await this._params.prompt(
+            this._params.getQuestion('inputTestRPCPort')
+          )).testrpcPort
+        case !nodb:
+          nodb = !(await this._params.prompt(
+            this._params.getQuestion('useTestRPCDB')
+          )).nodb
+        case !background:
+          background = (await this._params.prompt(
+            this._params.getQuestion('startInBackground')
+          )).startInBackground
+      }
+  
+      const START_ENV = {
+        'hostname': host,
+        'port': port,
+        'no_db': nodb || false
+      }
+  
+      if (background) {
+        await this._params.processManager.listenExitPM2service()
+        const testrpcUp = await this._params.processManager.startPM2Service({
+          cwd: path.dirname(require.resolve('@daocasino/dc-protocol')),
+          name: 'dc-protocol',
+          env: START_ENV,
+          wait_ready: true,
+          listen_timeout: 3000,
+          exec_mode: 'fork',
+          script: require.resolve('@daocasino/dc-protocol/src/testrpc.server.js')
+        })
+  
+        log.info(`\n
+          \rtestrpc start in background with pm2 status: ${chalk.green(testrpcUp.status)}
+          \rfor show logs ganache testrpc please run 
+          \r${chalk.green('dc-cli logs --testrpc')} or ${chalk.green('pm2 logs dc-protocol')}
+          \rfor stop process need run ${chalk.green('dc-cli stop')}\n
+        `)
+      } else {
+        this._params.processManager.startChildProcess(
+          `node ${require.resolve('@daocasino/dc-protocol/src/testrpc.server.js')}`,
+          path.dirname(require.resolve('@daocasino/dc-protocol')),
+          START_ENV
+        )
+      }
+    } catch (error) {
+      throw error
     }
   }
 
@@ -220,7 +223,7 @@ export default class DApp extends Deployer implements DAppInstance {
   }
 
   private async startLocalENV (
-    startOptions: StartOptions = startConfigInJson
+    startOptions: StartOptions = require(this._config.startOptions)
   ): Promise<void> {
     try {
       await this.startTestRPC({ host: '0.0.0.0', port: 8545, nodb: true, background: true })
@@ -244,7 +247,7 @@ export default class DApp extends Deployer implements DAppInstance {
   }
 
   private async startDockerLocalENV (
-    startOptions: StartOptions = startConfigInJson
+    startOptions: StartOptions = require(this._config.startOptions)
   ): Promise<void> {
     log.info('comming soon...')
     // TODO: Implement

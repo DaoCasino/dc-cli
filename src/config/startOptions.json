@@ -1,5 +1,5 @@
 {
-  "useDocker":false,
+  "useDocker": false,
   "blockchainNetwork":"local",
-  "stdmigrate": false
+  "stdmigrate": true
 }
