@@ -11,17 +11,17 @@ const config: CLIConfigInterface = {
     { name: 'start', description: '      Up env for development dapp', env: false },
     { name: 'stop', description: '       Down env for development dapp', env: false },
     { name: 'logs', description: '       Output logs SDK with network', env: false },
-    { name: 'upload-game', description: 'Upload game to the bankroller', env: false },
-    { name: 'unload-game', description: 'Unload game in the bankroller', env: false },
-    { name: 'deploy', description: '     Deploing dapp', env: true },
-    { name: 'publish', description: '    Send game to Dao.Casino marketplace', env: true }
+    // { name: 'upload-game', description: 'Upload game to the bankroller', env: false },
+    // { name: 'unload-game', description: 'Unload game in the bankroller', env: false },
+    // { name: 'deploy', description: '     Deploing dapp', env: true },
+    // { name: 'publish', description: '    Send game to Dao.Casino marketplace', env: true }
   ],
 
   templates: [
     {
       name: 'DaoCasino/dc-sdk-example',
       descript: 'full frontend template with webpack, truffle, web3',
-      doc: 'https://github.com/DaoCasino/sdk'
+      doc: 'https://github.com/DaoCasino/dc-sdk-example'
     }
   ],
   

@@ -41,31 +41,32 @@ export async function checkLatestVersion (): Promise<{
   latestVersion: string,
   targetVersion: string
 } | null> {
-  try {
-    const checkVersion = await npmCheck(require(config.packageJSON))
-    if (checkVersion !== null) {
-      const latestVersion = checkVersion.latest
-      const targetVersion = require(config.packageJSON).version
+  return null
+  // try {
+  //   const checkVersion = await npmCheck(require(config.packageJSON))
+  //   if (checkVersion !== null) {
+  //     const latestVersion = checkVersion.latest
+  //     const targetVersion = require(config.packageJSON).version
 
-      if (targetVersion < latestVersion) {
-        log.info(`
-          \r${chalk.bgRgb(255, 194, 102).gray('  UPDATE AVALABLE  ')}
+  //     if (targetVersion < latestVersion) {
+  //       log.info(`
+  //         \r${chalk.bgRgb(255, 194, 102).gray('  UPDATE AVALABLE  ')}
           
-          \rPlease use ${chalk.green('npm i -g dc-cli@latest')},
-          \rto update for lasst version dc-cli
+  //         \rPlease use ${chalk.green('npm i -g dc-cli@latest')},
+  //         \rto update for lasst version dc-cli
   
-          \rLast version: ${chalk.green(latestVersion)}
-          \rYour version: ${chalk.red(targetVersion)}
-        `)
-      }
+  //         \rLast version: ${chalk.green(latestVersion)}
+  //         \rYour version: ${chalk.red(targetVersion)}
+  //       `)
+  //     }
 
-      return { latestVersion, targetVersion }
-    } else {
-      return null
-    }
-  } catch (error) {
-    throw error
-  }
+  //     return { latestVersion, targetVersion }
+  //   } else {
+  //     return null
+  //   }
+  // } catch (error) {
+  //   throw error
+  // }
 }
 
 export function exitProgram (

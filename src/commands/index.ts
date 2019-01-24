@@ -151,67 +151,67 @@ program
   .option('-s, --stdmigrate', 'Migrate standart contract in dc-protocol')
   .action(command => CLI.DApp.migrateContract(command))
 
-program
-  .command('upload-game')
-  .description(`${chalk.green(commands['upload-game'].description.trim())} `)
-  .usage(`${chalk.red('[options]')}`)
-  .option('-p, --platformid <platformId>')
-  .option('-a, --address <bankrollerAddress>', 'Bankroller address')
-  .option('-g, --game-path <gamePath>', 'Path to upload dapp.logic.js and dapp.manifest.js')
-  .action(command => CLI.DApp.uploadGameToBankroller(command))
-  .on('--help', () => {
-    log.info(`
-      Template run:
+// program
+//   .command('upload-game')
+//   .description(`${chalk.green(commands['upload-game'].description.trim())} `)
+//   .usage(`${chalk.red('[options]')}`)
+//   .option('-p, --platformid <platformId>')
+//   .option('-a, --address <bankrollerAddress>', 'Bankroller address')
+//   .option('-g, --game-path <gamePath>', 'Path to upload dapp.logic.js and dapp.manifest.js')
+//   .action(command => CLI.DApp.uploadGameToBankroller(command))
+//   .on('--help', () => {
+//     log.info(`
+//       Template run:
 
-        dc-cli upload ${chalk.cyan('[options]')}
+//         dc-cli upload ${chalk.cyan('[options]')}
 
-      Example run:
+//       Example run:
 
-        dc-cli upload --platformid ${chalk.green('DC_Platform')} --address ${chalk.green('0xf3b7416161E69B4fbF8b7E61a9326F4251ca0a5D')} --game-path ${chalk.green('./dapp')}
-      ${chalk.yellow(`
-        If arguments are not passed then cli will
-        ask, leading questions and set needed arguments 
-      `)}
-    `)
-  })
+//         dc-cli upload --platformid ${chalk.green('DC_Platform')} --address ${chalk.green('0xf3b7416161E69B4fbF8b7E61a9326F4251ca0a5D')} --game-path ${chalk.green('./dapp')}
+//       ${chalk.yellow(`
+//         If arguments are not passed then cli will
+//         ask, leading questions and set needed arguments 
+//       `)}
+//     `)
+//   })
 
-program
-  .command('unload-game')
-  .description(`${chalk.green(commands['unload-game'].description.trim())} `)
-  .usage(`${chalk.red('[options]')}`)
-  .option('-p, --platformid <platformId>')
-  .option('-a, --address <bankrollerAddress>', 'Bankroller address')
-  .option('-n, --game-name <gameName>', 'Path to upload dapp.logic.js and dapp.manifest.js')
-  .action(command => CLI.DApp.unloadGameInBankroller(command))
-  .on('--help', () => {
-    log.info(`
-      Template run:
+// program
+//   .command('unload-game')
+//   .description(`${chalk.green(commands['unload-game'].description.trim())} `)
+//   .usage(`${chalk.red('[options]')}`)
+//   .option('-p, --platformid <platformId>')
+//   .option('-a, --address <bankrollerAddress>', 'Bankroller address')
+//   .option('-n, --game-name <gameName>', 'Path to upload dapp.logic.js and dapp.manifest.js')
+//   .action(command => CLI.DApp.unloadGameInBankroller(command))
+//   .on('--help', () => {
+//     log.info(`
+//       Template run:
 
-        dc-cli upload ${chalk.cyan('[options]')}
+//         dc-cli upload ${chalk.cyan('[options]')}
 
-      Example run:
+//       Example run:
 
-        dc-cli upload --platformid ${chalk.green('DC_Platform')} --address ${chalk.green('0xf3b7416161E69B4fbF8b7E61a9326F4251ca0a5D')} --game-name ${chalk.green('MyDappGame')}
-      ${chalk.yellow(`
-        If arguments are not passed then cli will
-        ask, leading questions and set needed arguments 
-      `)}
-    `)
-  })
+//         dc-cli upload --platformid ${chalk.green('DC_Platform')} --address ${chalk.green('0xf3b7416161E69B4fbF8b7E61a9326F4251ca0a5D')} --game-name ${chalk.green('MyDappGame')}
+//       ${chalk.yellow(`
+//         If arguments are not passed then cli will
+//         ask, leading questions and set needed arguments 
+//       `)}
+//     `)
+//   })
 
 
-program
-  .command('deploy')
-  .description(`${chalk.green(commands['deploy'].description.trim())} `)
-  .usage(`${chalk.red('[options]')}`)
-  .option('-f, --force', 'Force run command not depend enviroment')
-  .action(() => CLI.DApp.deployGameToIPFS())
+// program
+//   .command('deploy')
+//   .description(`${chalk.green(commands['deploy'].description.trim())} `)
+//   .usage(`${chalk.red('[options]')}`)
+//   .option('-f, --force', 'Force run command not depend enviroment')
+//   .action(() => CLI.DApp.deployGameToIPFS())
 
-program
-  .command('publish')
-  .description(`${chalk.green(commands['publish'].description.trim())} `)
-  .usage(`${chalk.red('[options]')}`)
-  .option('-f, --force', 'Force run command not depend enviroment')
-  .action(() => CLI.DApp.publishGame())
+// program
+//   .command('publish')
+//   .description(`${chalk.green(commands['publish'].description.trim())} `)
+//   .usage(`${chalk.red('[options]')}`)
+//   .option('-f, --force', 'Force run command not depend enviroment')
+//   .action(() => CLI.DApp.publishGame())
 
 run()
